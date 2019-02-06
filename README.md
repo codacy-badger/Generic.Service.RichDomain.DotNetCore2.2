@@ -6,7 +6,7 @@ This project is builded in *asp.net core 2.2* and has the dependencies below:
 
 ## *All methods is Async.*
 
-Link to [this](https://www.nuget.org/packages/GenericModel/1.0.0) project.
+Link to [this](https://www.nuget.org/packages/GenericModel/1.0.0) package on nuget.org.
 
 
 ## DOCs
