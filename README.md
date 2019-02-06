@@ -1,16 +1,19 @@
-### Generic Model Layer
+# Generic Model Layer
 
 This a pilot project with objective to made a CRUD more easily. Adding an extra layer of abstraction in application. 
 
 This project is builded in *asp.net core 2.2* and has the dependencies below:
  *     Microsoft.EntityFrameworkCore (>= 2.2.1)
 
-## *All methods is Async.*
+## *All methods is Async. This project is focused in rich domains (well so I understood at least).*
+
+Like or dislike, tell me and togheter make this project better.
+*Come and be part of this project!*
 
 Link to [this](https://www.nuget.org/packages/GenericModel/1.0.0) package on nuget.org.
 
 
-## DOCs
+## *DOCs*
 
 For implements this package, follow the steps:
 
@@ -22,16 +25,20 @@ For implements this package, follow the steps:
 - In your repository make this:
   
 ```
-public class MyEntityRepo: BaseAction<MyEntity, BaseFilter, MyContext>, IBaseAction<MyEntity, BaseFilter>
+public class MyEntity: BaseAction<MyEntity, BaseFilter, MyContext>, IBaseAction<MyEntity, BaseFilter>
 {
 //if has any code you implements here!!!
 }
 
 ///On the Controller
 ...Controller code
+private readonly MyEntity _model;
+
+...ctor
+
 pulic async MyEntity GetById(long id)
 {
-  return await _myRepo.GetByIdAsync(id);
+  return await _model.GetByIdAsync(id);
 }
 ....Controller code...
 ```
@@ -39,12 +46,7 @@ pulic async MyEntity GetById(long id)
 If you want filter method implements like this way:
 
 ```
-//My entity
-public class MyEntity
-{
- public long Id {get; set;}
- public string Name {get; set;}
-}
+//The entity is the same of above example.
 
 //My Entity Filter
 public class MyEntityFilter: BaseFilter
@@ -53,7 +55,7 @@ public class MyEntityFilter: BaseFilter
  public string Name {get; set;}
 }
 
-//My Repo
+//My Entity
 public IQueryable<MyEntity> Filter(MyEntityFilter filter)
 {
  return GetAllBy(x => x.Id == filter.Id || x.name.Contains(filter.Name));
@@ -62,6 +64,6 @@ public IQueryable<MyEntity> Filter(MyEntityFilter filter)
 //In Controller
 public async ActionResult GetFiltred(MyEntityFilter filter)
 {
- return await _myRepo.Filter(filter).ToListAsync();
+ return await _model.Filter(filter).ToListAsync();
 }
 ```
