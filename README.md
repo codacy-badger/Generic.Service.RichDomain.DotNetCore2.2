@@ -1,7 +1,7 @@
 ### GenericModel
 This a pilot project with objective to made a CRUD more easily. Adding an extra layer of abstraction in application. 
 
-This project is buided in *asp.net core 2.2* and has dependencies below:
+This project is builded in *asp.net core 2.2* and has the dependencies below:
  *     Microsoft.EntityFrameworkCore (>= 2.2.1)
 
 ## *All methods is Async.*
