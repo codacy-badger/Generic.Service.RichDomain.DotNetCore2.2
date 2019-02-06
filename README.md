@@ -35,3 +35,33 @@ pulic async MyEntity GetById(long id)
 }
 ....Controller code...
 ```
+
+If you want filter method implements like this way:
+
+```
+//My entity
+public class MyEntity
+{
+ public long Id {get; set;}
+ public string Name {get; set;}
+}
+
+//My Entity Filter
+public class MyEntityFilter: BaseFilter
+{
+ public long Id {get; set;}
+ public string Name {get; set;}
+}
+
+//My Repo
+public IQueryable<MyEntity> Filter(MyEntityFilter filter)
+{
+ return GetAllBy(x => x.Id == filter.Id || x.name.Contains(filter.Name));
+}
+
+//In Controller
+public async ActionResult GetFiltred(MyEntityFilter filter)
+{
+ return await _myRepo.Filter(filter).ToListAsync();
+}
+```
