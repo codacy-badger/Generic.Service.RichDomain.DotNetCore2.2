@@ -3,7 +3,7 @@
 This a pilot project with objective to made a CRUD more easily. Adding an extra layer of abstraction in application. 
 
 This project is builded in *asp.net core 2.2* and has the dependencies below:
- *     Microsoft.EntityFrameworkCore (>= 2.2.1)
+ * Microsoft.EntityFrameworkCore (>= 2.2.1)
 
 ## *All methods is Async. This project is focused in rich domains (well so I understood at least).*
 
@@ -68,9 +68,7 @@ public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred(MyEntityFilter
 }
 ```
 
-
 Saving data on database:
-
 ```
 //The entity is the same of first example.
 
@@ -87,7 +85,6 @@ public async Task<ActionResult<MyEntity>> PostAsync(MyEntity entity)
 ```
 
 Updating data:
-
 ```
 //.....more code....
 public async Task<ActionResult> PutAsync(long id, MyEntity entity)
@@ -101,7 +98,6 @@ public async Task<ActionResult> PutAsync(long id, MyEntity entity)
 ```
 
 Delete data:
-
 ```
 //...more code and finally...
 public async Task<ActionResult> DeleteAsync(long id)
