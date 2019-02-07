@@ -62,8 +62,56 @@ public IQueryable<MyEntity> Filter(MyEntityFilter filter)
 }
 
 //In Controller
-public async ActionResult GetFiltred(MyEntityFilter filter)
+public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred(MyEntityFilter filter)
 {
  return await _model.Filter(filter).ToListAsync();
 }
 ```
+
+
+Saving data on database:
+
+```
+//The entity is the same of first example.
+
+//In Controller
+... Controller code
+private readonly MyEntity _model;
+//...ctor and more code.....
+public async Task<ActionResult<MyEntity>> PostAsync(MyEntity entity)
+{
+  _model.Map(entity);
+  entity = await _model.CreateAsync();
+ return CreatedAtAction(nameof(GetByIdAsync), new { id = entity.Id }, entity);
+}
+```
+Updating data:
+
+```
+//.....more code....
+public async Task<ActionResult> PutAsync(long id, MyEntity entity)
+{
+  if(id != entity.Id)
+    return BadRequest();
+  _model.Map(entity);
+  entity = await _model.UpdateAsync();
+ return NoContent();
+}
+```
+
+Delete data:
+
+```
+public async Task<ActionResult> DeleteAsync(long id)
+        {
+            if (id < 1)
+                return BadRequest();
+            await _model.DeleteAsync(id);
+            return NoContent();
+        }
+```
+
+[Here](https://github.com/guilhermecaixeta/TodoApi) are the implemented package on project using web api.
+
+Doubts or recommendations? 
+Send me an e-mail: guilherme.lpcaixeta@gmail.com
