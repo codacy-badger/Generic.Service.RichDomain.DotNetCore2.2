@@ -1,4 +1,3 @@
-
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -30,12 +29,14 @@ namespace GenericModel.Action
 
         public virtual async Task<E> CreateAsync()
         {
-            var item = (E)Convert.ChangeType(this, typeof(E));
-            _context.Entry<E>(item).State = EntityState.Added;
+            var item = ReturnE();
+            SetState(EntityState.Added, item);
             await _context.SaveChangesAsync();
             return item;
         }
 
+        private E ReturnE() => (E)Convert.ChangeType(this, typeof(E));
+        private void SetState(EntityState state, E item) => _context.Entry<E>(item).State = state;
         public virtual async Task DeleteAsync(long id)
         {
             _context.Remove(await GetByIdAsync(id));
@@ -44,8 +45,8 @@ namespace GenericModel.Action
 
         public virtual async Task UpdateAsync()
         {
-            var item = (E)Convert.ChangeType(this, typeof(E));
-            _context.Entry<E>(item).State = EntityState.Modified;
+            var item = ReturnE();
+            SetState(EntityState.Modified, item);
             await _context.SaveChangesAsync();
         }
 
