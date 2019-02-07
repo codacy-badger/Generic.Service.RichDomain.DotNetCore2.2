@@ -85,6 +85,7 @@ public async Task<ActionResult<MyEntity>> PostAsync(MyEntity entity)
  return CreatedAtAction(nameof(GetByIdAsync), new { id = entity.Id }, entity);
 }
 ```
+
 Updating data:
 
 ```
@@ -94,7 +95,7 @@ public async Task<ActionResult> PutAsync(long id, MyEntity entity)
   if(id != entity.Id)
     return BadRequest();
   _model.Map(entity);
-  entity = await _model.UpdateAsync();
+  await _model.UpdateAsync();
  return NoContent();
 }
 ```
@@ -102,6 +103,7 @@ public async Task<ActionResult> PutAsync(long id, MyEntity entity)
 Delete data:
 
 ```
+//...more code and finally...
 public async Task<ActionResult> DeleteAsync(long id)
         {
             if (id < 1)
