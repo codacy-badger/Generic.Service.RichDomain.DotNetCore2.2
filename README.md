@@ -11,7 +11,7 @@ Like or dislike, tell me and togheter make this project better.
 *Come and be part of this project!*
 
 Link to [this](https://www.nuget.org/packages/GenericModel/1.0.0) package on nuget.org.
-
+Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer) 
 
 ## *DOCs*
 
@@ -74,8 +74,11 @@ Saving data on database:
 
 //In Controller
 ... Controller code
+
 private readonly MyEntity _model;
+
 //...ctor and more code.....
+
 public async Task<ActionResult<MyEntity>> PostAsync(MyEntity entity)
 {
   _model.Map(entity);
@@ -87,6 +90,7 @@ public async Task<ActionResult<MyEntity>> PostAsync(MyEntity entity)
 Updating data:
 ```
 //.....more code....
+
 public async Task<ActionResult> PutAsync(long id, MyEntity entity)
 {
   if(id != entity.Id)
@@ -100,6 +104,7 @@ public async Task<ActionResult> PutAsync(long id, MyEntity entity)
 Delete data:
 ```
 //...more code and finally...
+
 public async Task<ActionResult> DeleteAsync(long id)
         {
             if (id < 1)
