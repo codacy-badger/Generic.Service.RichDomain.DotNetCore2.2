@@ -24,7 +24,7 @@ namespace GenericModel.Action
             _dataInclusionNameField = "dateInclusion";
         }
 
-        public BaseAction(C context, dataInclusionNameField)
+        public BaseAction(C context, string dataInclusionNameField)
         {
             _context = context;
             _dataInclusionNameField = dataInclusionNameField;
@@ -74,8 +74,8 @@ namespace GenericModel.Action
 
         public void SetDateInclusion()
         {
-            if(this.GetType().GetProperties().FirstOrDefault(x => x.Name.Equals("DateInclusion")) != null)
-                this.GetType().GetProperty("DateInclusion").SetValue(this, DateTime.Now);
+            if(this.GetType().GetProperties().FirstOrDefault(x => x.Name.Equals(_dataInclusionNameField)) != null)
+                this.GetType().GetProperty(_dataInclusionNameField).SetValue(this, DateTime.Now);
         }
 
         public abstract IQueryable<E> FilterAll(F filter);
