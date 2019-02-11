@@ -17,8 +17,19 @@ namespace GenericModel.Action
         where C : DbContext
     {
         protected readonly C _context;
+        private readonly string _dataInclusionNameField; 
+        public BaseAction(C context)
+        {
+            _context = context;
+            _dataInclusionNameField = "dateInclusion";
+        }
 
-        public BaseAction(C context) => _context = context;
+        public BaseAction(C context, dataInclusionNameField)
+        {
+            _context = context;
+            _dataInclusionNameField = dataInclusionNameField;
+        }
+
         public virtual IQueryable<E> GetAll() => _context.Set<E>().AsNoTracking();
 
         public virtual IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate) => GetAll().Where(predicate);
@@ -29,6 +40,7 @@ namespace GenericModel.Action
 
         public virtual async Task<E> CreateAsync()
         {
+            SetDateInclusion();
             var item = ReturnE();
             SetState(EntityState.Added, item);
             await _context.SaveChangesAsync();
@@ -36,7 +48,9 @@ namespace GenericModel.Action
         }
 
         private E ReturnE() => (E)Convert.ChangeType(this, typeof(E));
+
         private void SetState(EntityState state, E item) => _context.Entry<E>(item).State = state;
+        
         public virtual async Task DeleteAsync(long id)
         {
             _context.Remove(await GetByIdAsync(id));
@@ -56,6 +70,12 @@ namespace GenericModel.Action
             {
                 prop.SetValue(this, item.GetType().GetProperty(prop.Name).GetValue(item) ?? null);
             }
+        }
+
+        public void SetDateInclusion()
+        {
+            if(this.GetType().GetProperties().FirstOrDefault(x => x.Name.Equals("DateInclusion")) != null)
+                this.GetType().GetProperty("DateInclusion").SetValue(this, DateTime.Now);
         }
 
         public abstract IQueryable<E> FilterAll(F filter);
