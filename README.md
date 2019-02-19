@@ -18,9 +18,9 @@ Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer)
 For implements this package, follow the steps:
 
 - Install package:
-  * *Package Manager* > Install-Package GenericModel -Version 1.0.0
-  * *.Net CLI* > dotnet add package GenericModel --version 1.0.0 
-  * *Paket CLI* > paket add GenericModel --version 1.0.0 
+  * *Package Manager* > Install-Package GenericModel -Version 1.0.3
+  * *.Net CLI* > dotnet add package GenericModel --version 1.0.3
+  * *Paket CLI* > paket add GenericModel --version 1.0.3
   
 - In your repository make this:
   
