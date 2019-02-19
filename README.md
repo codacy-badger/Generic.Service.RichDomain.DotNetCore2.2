@@ -68,6 +68,38 @@ public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred(MyEntityFilter
 }
 ```
 
+To make a Pagination
+```
+JSON of BaseConfigurePagination
+{
+  (int)page : 0,
+  (int) size : 0
+  (string) sort : "ASC"
+  (string) order : "Id"
+}
+
+JSON Returned
+{
+  "content": [
+    {
+      Entity Array
+    }
+  ],
+  "totalElements": 0,
+  "sort": "string",
+  "order": "string",
+  "size": 0,
+  "page": 0
+}
+...Controller Code
+        [HttpGet("Paginate")]
+        public Pagination<Category> GetPage([FromQuery]BaseConfigurePagination config)
+        {
+            return _model.GetAll().PaginateTo(config);
+        }
+...more code...
+```
+
 Saving data on database:
 ```
 //The entity is the same of first example.
