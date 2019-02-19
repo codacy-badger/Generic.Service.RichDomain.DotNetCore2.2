@@ -26,7 +26,7 @@ namespace GenericModel.Pagination
         /// <typeparam name="E"></typeparam>
         /// <returns></returns>
         public static Pagination<E> PaginateTo<E>(this IQueryable<E> listEntities, BaseConfigurePagination config, bool pageStartInOne)
-        where E : class => PaginateTo<E>(listEntities, config, pageStartInOne, "ASC", "Id", 10);
+        where E : class => PaginateTo<E>(listEntities, config, pageStartInOne, "ASC");
 
         /// <summary>
         /// Paginate entity E, default values: order=Id, size=10
@@ -38,7 +38,7 @@ namespace GenericModel.Pagination
         /// <typeparam name="E"></typeparam>
         /// <returns></returns>
         public static Pagination<E> PaginateTo<E>(this IQueryable<E> listEntities, BaseConfigurePagination config, bool pageStartInOne, string defaultSort)
-        where E : class => PaginateTo<E>(listEntities, config, pageStartInOne, defaultSort, "Id", 10);
+        where E : class => PaginateTo<E>(listEntities, config, pageStartInOne, defaultSort, "Id");
 
         /// <summary>
         /// Paginate entity E, default values: size=10
@@ -65,6 +65,6 @@ namespace GenericModel.Pagination
         /// <typeparam name="E"></typeparam>
         /// <returns></returns>
         public static Pagination<E> PaginateTo<E>(this IQueryable<E> listEntities, BaseConfigurePagination config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
-        where E : class => PaginateTo<E>(listEntities, config, pageStartInOne, defaultSort, defaultOrder, defaultSize);
+        where E : class => new Pagination<E>(listEntities, config, pageStartInOne, defaultSort, defaultOrder, defaultSize);
     }
 }
