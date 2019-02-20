@@ -8,8 +8,8 @@ Adding an extra layer of abstraction in application.
 This project has building using the best programmation pratices.
 
 Principles used:
--Reactive progammation;
--SOLID principles. 
+* Reactive progammation;
+* SOLID principles. 
 
 This project is builded in *asp.net core 2.2* and has the dependencies below:
  * Microsoft.EntityFrameworkCore (>= 2.2.1)
