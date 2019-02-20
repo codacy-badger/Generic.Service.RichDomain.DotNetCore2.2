@@ -11,20 +11,20 @@ namespace GenericModel.Action
     /// This is a Base Actions which any entity or repository should be have.
     /// C - DbContext if you need use,  E - Entity Type, F inheritance of BaseFilter or BaseFilter
     ///</summary>
-    public abstract class BaseAction<E, F, C> : IBaseAction<E, F>
+    public abstract class BaseRepository<E, F, C> : IBaseRepository<E, F>
         where E : class
         where F : BaseFilter
         where C : DbContext
     {
         protected readonly C _context;
-        private readonly string _dataInclusionNameField; 
-        public BaseAction(C context)
+        private readonly string _dataInclusionNameField;
+        public BaseRepository(C context)
         {
             _context = context;
             _dataInclusionNameField = "dateInclusion";
         }
 
-        public BaseAction(C context, string dataInclusionNameField)
+        public BaseRepository(C context, string dataInclusionNameField)
         {
             _context = context;
             _dataInclusionNameField = dataInclusionNameField;
@@ -47,10 +47,6 @@ namespace GenericModel.Action
             return item;
         }
 
-        private E ReturnE() => (E)Convert.ChangeType(this, typeof(E));
-
-        private void SetState(EntityState state, E item) => _context.Entry<E>(item).State = state;
-        
         public virtual async Task DeleteAsync(long id)
         {
             _context.Remove(await GetByIdAsync(id));
@@ -74,10 +70,14 @@ namespace GenericModel.Action
 
         public void SetDateInclusion()
         {
-            if(this.GetType().GetProperties().FirstOrDefault(x => x.Name.Equals(_dataInclusionNameField)) != null)
+            if (this.GetType().GetProperties().FirstOrDefault(x => x.Name.Equals(_dataInclusionNameField)) != null)
                 this.GetType().GetProperty(_dataInclusionNameField).SetValue(this, DateTime.Now);
         }
 
         public abstract IQueryable<E> FilterAll(F filter);
+
+        private E ReturnE() => (E)Convert.ChangeType(this, typeof(E));
+
+        private void SetState(EntityState state, E item) => _context.Entry<E>(item).State = state;
     }
 }

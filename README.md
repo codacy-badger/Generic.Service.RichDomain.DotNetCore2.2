@@ -1,16 +1,25 @@
 # Generic Model Layer
 
-This a pilot project with objective to made a CRUD more easily. Adding an extra layer of abstraction in application. 
+### All repositories names are changed from version 1.0.6, now the are BaseRepository and IBaseRepository.
+
+This project has objective to made a CRUD more easily. 
+
+Adding an extra layer of abstraction in application.
+This project has building using the best programmation pratices.
+
+Principles used:
+-Reactive progammation;
+-SOLID principles. 
 
 This project is builded in *asp.net core 2.2* and has the dependencies below:
  * Microsoft.EntityFrameworkCore (>= 2.2.1)
 
-## *All methods is Async. This project is focused in rich domains (well so I understood at least).*
+## * This project is focused in rich domains (well so I understood at least).*
 
 Like or dislike, tell me and togheter make this project better.
 *Come and be part of this project!*
 
-Link to [this](https://www.nuget.org/packages/GenericModel/1.0.0) package on nuget.org.
+Link to [this](https://www.nuget.org/packages/GenericModel/1.0.6) package on nuget.org.
 Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer) 
 
 ## *DOCs*
@@ -18,14 +27,14 @@ Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer)
 For implements this package, follow the steps:
 
 - Install package:
-  * *Package Manager* > Install-Package GenericModel -Version 1.0.3
-  * *.Net CLI* > dotnet add package GenericModel --version 1.0.3
-  * *Paket CLI* > paket add GenericModel --version 1.0.3
+  * *Package Manager* > Install-Package GenericModel -Version 1.0.6
+  * *.Net CLI* > dotnet add package GenericModel --version 1.0.6
+  * *Paket CLI* > paket add GenericModel --version 1.0.6
   
 - In your repository make this:
   
 ```
-public class MyEntity: BaseAction<MyEntity, BaseFilter, MyContext>, IBaseAction<MyEntity, BaseFilter>
+public class MyEntity: BaseRepository<MyEntity, BaseFilter, MyContext>, IBaseRepository<MyEntity, BaseFilter>
 {
 //if has any code you implements here!!!
 }
@@ -78,7 +87,7 @@ JSON of BaseConfigurePagination
   (string) order : "Id"
 }
 
-JSON Returned
+JSON Page format
 {
   "content": [
     {
