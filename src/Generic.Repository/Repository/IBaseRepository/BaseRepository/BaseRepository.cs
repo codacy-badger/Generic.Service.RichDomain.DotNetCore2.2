@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using GenericModel.Filter;
 using Microsoft.EntityFrameworkCore;
@@ -9,30 +10,31 @@ namespace GenericModel.Action
 {
     ///<summary>
     /// This is a Base Actions which any entity or repository should be have.
-    /// C - DbContext if you need use,  E - Entity Type, F inheritance of BaseFilter or BaseFilter
+    /// E - Entity Type, F inheritance of BaseFilter or BaseFilter
     ///</summary>
-    public abstract class BaseRepository<E, F, C> : IBaseRepository<E, F>
+    public abstract class BaseRepository<E, F> : IBaseRepository<E, F>
         where E : class
         where F : BaseFilter
-        where C : DbContext
     {
-        protected readonly C _context;
+        protected readonly DbContext _context;
         private readonly string _dataInclusionNameField;
-        public BaseRepository(C context)
+        public BaseRepository(DbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _dataInclusionNameField = "dateInclusion";
         }
 
-        public BaseRepository(C context, string dataInclusionNameField)
+        public BaseRepository(DbContext context, string dataInclusionNameField)
         {
-            _context = context;
-            _dataInclusionNameField = dataInclusionNameField;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _dataInclusionNameField = dataInclusionNameField ?? throw new ArgumentNullException(nameof(dataInclusionNameField));
         }
 
         public virtual IQueryable<E> GetAll() => _context.Set<E>().AsNoTracking();
 
         public virtual IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate) => GetAll().Where(predicate);
+
+        public IQueryable<E> FilterAll(F filter) => GetAllBy(FilterGenerate(filter));
 
         public virtual async Task<E> GetByIdAsync(long id) => await _context.Set<E>().FindAsync(id);
 
@@ -73,11 +75,31 @@ namespace GenericModel.Action
             if (this.GetType().GetProperties().FirstOrDefault(x => x.Name.Equals(_dataInclusionNameField)) != null)
                 this.GetType().GetProperty(_dataInclusionNameField).SetValue(this, DateTime.Now);
         }
-
-        public abstract IQueryable<E> FilterAll(F filter);
-
         private E ReturnE() => (E)Convert.ChangeType(this, typeof(E));
 
         private void SetState(EntityState state, E item) => _context.Entry<E>(item).State = state;
+
+        private Expression<Func<E, bool>> FilterGenerate(F filter)
+        {
+            Expression<Func<E, bool>> predicate = null;
+            foreach (PropertyInfo prop in filter.GetType().GetProperties())
+            {
+                var propValue = prop.GetValue(filter, null);
+                if (propValue != null)
+                {
+                    var param = Expression.Parameter(typeof(E));
+                    var body = Expression.Equal(Expression.Property(param, prop), Expression.Constant(propValue));
+                    if (predicate == null)
+                        predicate = Expression.Lambda<Func<E, bool>>(body, param);
+                    else
+                    {
+                        var predicateToOr = Expression.Lambda<Func<E, bool>>(body, param);
+                        var bodyToOr = Expression.Or(predicate.Body, predicateToOr.Body);
+                        predicate = Expression.Lambda<Func<E, bool>>(bodyToOr, param);
+                    }
+                }
+            }
+            return predicate;
+        }
     }
 }
