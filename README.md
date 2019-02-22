@@ -19,7 +19,7 @@ This project is builded in *asp.net core 2.2* and has the dependencies below:
 Like or dislike, tell me and togheter make this project better.
 *Come and be part of this project!*
 
-Link to [this](https://www.nuget.org/packages/GenericModel/1.0.6) package on nuget.org.
+Link to [this](https://www.nuget.org/packages/GenericModel/1.0.8) package on nuget.org.
 Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer) 
 
 ## *DOCs*
@@ -27,9 +27,9 @@ Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer)
 For implements this package, follow the steps:
 
 - Install package:
-  * *Package Manager* > Install-Package GenericModel -Version 1.0.6
-  * *.Net CLI* > dotnet add package GenericModel --version 1.0.6
-  * *Paket CLI* > paket add GenericModel --version 1.0.6
+  * *Package Manager* > Install-Package GenericModel -Version 1.0.8
+  * *.Net CLI* > dotnet add package GenericModel --version 1.0.8
+  * *Paket CLI* > paket add GenericModel --version 1.0.8
   
 - In your repository make this:
   
@@ -51,8 +51,8 @@ pulic async MyEntity GetById(long id)
 }
 ....Controller code...
 ```
-
-If you want filter method implements like this way:
+### From version 1.0.8
+If you want filter method generate lambda in runtime:
 
 ```
 //The entity is the same of above example.
@@ -64,19 +64,13 @@ public class MyEntityFilter: BaseFilter
  public string Name {get; set;}
 }
 
-//My Entity
-public IQueryable<MyEntity> Filter(MyEntityFilter filter)
-{
- return GetAllBy(x => x.Id == filter.Id || x.name.Contains(filter.Name));
-}
-
 //In Controller
 public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred(MyEntityFilter filter)
 {
  return await _model.Filter(filter).ToListAsync();
 }
 ```
-
+### From version 1.0.6
 To make a Pagination
 ```
 JSON of BaseConfigurePagination

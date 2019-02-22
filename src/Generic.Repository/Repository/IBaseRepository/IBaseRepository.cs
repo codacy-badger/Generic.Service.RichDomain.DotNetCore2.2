@@ -21,6 +21,15 @@ namespace GenericModel.Action
         IQueryable<E> GetAll();
         ///<summary>
         /// Return all data filtred
+        /// This method generate a lambda on runtime where:
+        /// if the attribute on filter is string contains has used to compare;
+        /// if the attribute on filter is long and more than 0 or do not corresponds to string type, equals has used to compare;
+        /// <remarks>
+        /// EX: 
+        /// JSON Filter
+        /// {"id": 1, "Name": "TestName"}
+        /// The lambda generated corresponds to something like this: x => x.id == 1 || x.Contains("TestName")
+        /// </remarks>
         ///</summary>
         ///<param name="filter">Filter to apply</param>
         IQueryable<E> FilterAll(F filter);

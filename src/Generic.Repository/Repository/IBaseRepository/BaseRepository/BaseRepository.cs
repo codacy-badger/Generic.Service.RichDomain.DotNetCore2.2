@@ -20,13 +20,13 @@ namespace GenericModel.Action
         private readonly string _dataInclusionNameField;
         public BaseRepository(DbContext context)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _context = context;
             _dataInclusionNameField = "dateInclusion";
         }
 
         public BaseRepository(DbContext context, string dataInclusionNameField)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _context = context;
             _dataInclusionNameField = dataInclusionNameField ?? throw new ArgumentNullException(nameof(dataInclusionNameField));
         }
 
@@ -34,7 +34,7 @@ namespace GenericModel.Action
 
         public virtual IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate) => GetAll().Where(predicate);
 
-        public IQueryable<E> FilterAll(F filter) => GetAllBy(FilterGenerate(filter));
+        public virtual IQueryable<E> FilterAll(F filter) => GetAllBy(FilterGenerate(filter));
 
         public virtual async Task<E> GetByIdAsync(long id) => await _context.Set<E>().FindAsync(id);
 
@@ -70,7 +70,7 @@ namespace GenericModel.Action
             }
         }
 
-        public void SetDateInclusion()
+        private void SetDateInclusion()
         {
             if (this.GetType().GetProperties().FirstOrDefault(x => x.Name.Equals(_dataInclusionNameField)) != null)
                 this.GetType().GetProperty(_dataInclusionNameField).SetValue(this, DateTime.Now);
@@ -88,14 +88,28 @@ namespace GenericModel.Action
                 if (propValue != null)
                 {
                     var param = Expression.Parameter(typeof(E));
-                    var body = Expression.Equal(Expression.Property(param, prop), Expression.Constant(propValue));
-                    if (predicate == null)
-                        predicate = Expression.Lambda<Func<E, bool>>(body, param);
+                    var paramProp = typeof(E).GetProperty(prop.Name);
+                    BinaryExpression lambda = null;
+                    MethodCallExpression methodCall = null;
+                    if (propValue.GetType() != typeof(string) || (propValue.GetType() == typeof(long) && (long)propValue > 0))
+                        lambda = Expression.Equal(Expression.Property(param, paramProp), Expression.Constant(propValue));
                     else
                     {
-                        var predicateToOr = Expression.Lambda<Func<E, bool>>(body, param);
-                        var bodyToOr = Expression.Or(predicate.Body, predicateToOr.Body);
-                        predicate = Expression.Lambda<Func<E, bool>>(bodyToOr, param);
+                        MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                        methodCall = Expression.Call(Expression.Property(param, paramProp), method, Expression.Constant(propValue));
+                    }
+
+                    if (predicate == null)
+                    {
+                        predicate = lambda != null ? Expression.Lambda<Func<E, bool>>(lambda, param) : Expression.Lambda<Func<E, bool>>(methodCall, param);
+                    }
+                    else
+                    {
+                        var predicateToOr = lambda != null ? Expression.Lambda<Func<E, bool>>(lambda, param) : Expression.Lambda<Func<E, bool>>(methodCall, param);
+                        lambda = Expression.OrElse(
+                            Expression.Invoke(predicate, param),
+                            Expression.Invoke(predicateToOr, param));
+                        predicate = Expression.Lambda<Func<E, bool>>(lambda, param);
                     }
                 }
             }
