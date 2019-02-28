@@ -5,14 +5,14 @@
 ### VERSION 1.0.9 - Notes:
 #### * All Namespace of project was changed to make more easily and intuitive. 
  - BaseRepository
-  * Before: GenericModel.Action
-  * After: Generic.Repository.Base
+   * Before: GenericModel.Action
+   * After: Generic.Repository.Base
  - Pagination
-  * Before: GenericModel.Pagination
-  * After: Generic.Repository.Extension.Pagination
+   * Before: GenericModel.Pagination
+   * After: Generic.Repository.Extension.Pagination
  - BaseFilter
-  * Before: GenericModel.Filter
-  * After: Generic.Repository.Entity.Filter
+   * Before: GenericModel.Filter
+   * After: Generic.Repository.Entity.Filter
 
 #### * BaseFilter are changed to interface new is IBaseFilter.
 #### * Filter was changed to attend more methods in lambda.
