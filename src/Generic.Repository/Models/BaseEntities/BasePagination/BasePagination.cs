@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using GenericModel.Action;
-using GenericModel.Filter;
 using Microsoft.EntityFrameworkCore;
 
-namespace GenericModel.Pagination
+namespace Generic.Repository.Entity.Pagination
 {
     /// <summary>
     /// Pagination Class
@@ -47,7 +45,7 @@ namespace GenericModel.Pagination
         private void ValidateCtor(int count, IQueryable<E> listEntities, BaseConfigurePagination config)
         {
             if (count < 1 || config == null)
-                throw new Exception($"The {(config != null ? nameof(listEntities) : nameof(config))} is empty!");
+                throw new Exception($"NameClass: {nameof(ValidateCtor)} - The {(config != null ? nameof(listEntities) : nameof(config))} is empty!");
         }
 
         public IEnumerable<E> Content

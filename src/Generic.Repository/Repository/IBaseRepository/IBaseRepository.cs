@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using GenericModel.Filter;
+using Generic.Repository.Entity.Filter;
 
-namespace GenericModel.Action
+namespace Generic.Repository.Base
 {
     public interface IBaseRepository<E, F>
     where F : BaseFilter
