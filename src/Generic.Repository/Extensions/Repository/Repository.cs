@@ -129,6 +129,7 @@ namespace Generic.Repository.Extension.Repository
                 returnString = "GreaterThanOrEquals";
             else if (Regex.Match(value, @"(LessThanOrEquals)").Success)
                 returnString = "LessThanOrEquals";
+            else returnString = "Equals";
             output = returnString;
         }
 
@@ -139,6 +140,7 @@ namespace Generic.Repository.Extension.Repository
                 returnString = "And";
             else if (Regex.Match(value, @"(Or)").Success)
                 returnString = "Or";
+            else returnString = "And";
             output = returnString;
         }
     }

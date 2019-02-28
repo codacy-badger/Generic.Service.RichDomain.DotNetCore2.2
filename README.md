@@ -1,6 +1,21 @@
 # Generic Model Layer
 
-### All repositories names are changed from version 1.0.6, now the are BaseRepository and IBaseRepository.
+### VERSION 1.0.6 - Notes:
+#### * All repositories names was changed, now the are BaseRepository and IBaseRepository.
+### VERSION 1.0.9 - Notes:
+#### * All Namespace of project was changed to make more easily and intuitive. 
+ - BaseRepository
+  - Before: GenericModel.Action
+  - After: Generic.Repository.Base
+ - Pagination
+  - Before: GenericModel.Pagination
+  - After: Generic.Repository.Extension.Pagination
+ - BaseFilter
+  - Before: GenericModel.Filter
+  - After: Generic.Repository.Entity.Filter
+
+#### * BaseFilter are changed to interface new is IBaseFilter.
+#### * Filter was changed to attend more methods in lambda.
 
 This project has objective to made a CRUD more easily. 
 
@@ -19,7 +34,7 @@ This project is builded in *asp.net core 2.2* and has the dependencies below:
 Like or dislike, tell me and togheter make this project better.
 *Come and be part of this project!*
 
-Link to [this](https://www.nuget.org/packages/GenericModel/1.0.8) package on nuget.org.
+Link to [this](https://www.nuget.org/packages/GenericModel/1.0.9) package on nuget.org.
 Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer) 
 
 ## *DOCs*
@@ -27,14 +42,14 @@ Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer)
 For implements this package, follow the steps:
 
 - Install package:
-  * *Package Manager* > Install-Package GenericModel -Version 1.0.8
-  * *.Net CLI* > dotnet add package GenericModel --version 1.0.8
-  * *Paket CLI* > paket add GenericModel --version 1.0.8
+  * *Package Manager* > Install-Package GenericModel -Version 1.0.9
+  * *.Net CLI* > dotnet add package GenericModel --version 1.0.9
+  * *Paket CLI* > paket add GenericModel --version 1.0.9
   
 - In your repository make this:
   
 ```
-public class MyEntity: BaseRepository<MyEntity, BaseFilter, MyContext>, IBaseRepository<MyEntity, BaseFilter>
+public class MyEntity: BaseRepository<MyEntity, IBaseFilter>, IBaseRepository<MyEntity, IBaseFilter>
 {
 //if has any code you implements here!!!
 }
@@ -51,24 +66,58 @@ pulic async MyEntity GetById(long id)
 }
 ....Controller code...
 ```
-### From version 1.0.8
-If you want filter method generate lambda in runtime:
+### From version 1.0.9
+#### Atention on this
+* The filter property names need to be the same as the entity
+
+Now this method can be generate lambda by names complements
+
+If you add one this word below the generated lambda will attend this.
+
+List words reserved to lambda methods:
+* Equal
+* Contains (only used in string types)
+* GreaterThan
+* LessThan
+* GreaterThanOrEquals
+* LessThanOrEquals
+
+#### To use this words: IdEqual
+
+Generated lambda: x => x.Id == value;
+
+List words reserved to merge expressions:
+* Or
+* And
+
+#### To use this words: IdEqualAnd
+
+Generated lambda: x => x.Id == value && .....;
+
+#### If none word reserved is informed on properties the method assumes the follow default values:
+* word reserved to merge expressions : And
+* word reserved to lambda methods: Equal
 
 ```
 //The entity is the same of above example.
 
 //My Entity Filter
-public class MyEntityFilter: BaseFilter
+public class MyEntityFilter: IBaseFilter
 {
- public long Id {get; set;}
- public string Name {get; set;}
+  [FromQuery(Name="Id")]
+  public long IdEqualAnd {get; set;}
+  [FromQuery(Name="Name")]
+  public string NameContains {get; set;}
 }
 
 //In Controller
-public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred(MyEntityFilter filter)
+public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred([FromQuery]MyEntityFilter filter)
 {
  return await _model.Filter(filter).ToListAsync();
 }
+
+//Lambda Generated
+// x => x.Id == valueId && x.Name.Contains(valueName)
 ```
 ### From version 1.0.6
 To make a Pagination
