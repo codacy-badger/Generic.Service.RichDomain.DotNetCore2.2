@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using Generic.Repository.Entity.Filter;
+using Generic.Repository.Entity.IFilter;
 using Generic.Repository.Extension.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +14,7 @@ namespace Generic.Repository.Base {
     ///</summary>
     public abstract class BaseRepository<E, F> : IBaseRepository<E, F>
         where E : class
-    where F : BaseFilter {
+    where F : IBaseFilter {
         protected readonly DbContext _context;
         private readonly string _dataInclusionNameField;
         public BaseRepository (DbContext context) {

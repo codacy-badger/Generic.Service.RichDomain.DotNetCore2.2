@@ -1,10 +1,10 @@
-namespace Generic.Repository.Entity.Filter
+namespace Generic.Repository.Entity.IFilter
 {
     ///<summary>
     /// Base Filter to use for filter entities on package;
     /// Inheritance is required.
     ///</summary>
-    public abstract class BaseFilter
+    public interface IBaseFilter
     {
         
     }

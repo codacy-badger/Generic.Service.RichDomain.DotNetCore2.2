@@ -50,8 +50,8 @@ namespace Generic.Repository.Entity.Pagination
 
         public IEnumerable<E> Content
         {
-            get => Sort == "ASC" ? _listEntities.OrderBy(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToAsyncEnumerable().ToEnumerable()
-            : _listEntities.OrderByDescending(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToAsyncEnumerable().ToEnumerable();
+            get => Sort == "ASC" ? _listEntities.OrderBy(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToList()
+            : _listEntities.OrderByDescending(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToList();
         }
 
         public int TotalElements

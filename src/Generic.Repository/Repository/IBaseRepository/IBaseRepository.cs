@@ -2,12 +2,12 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Generic.Repository.Entity.Filter;
+using Generic.Repository.Entity.IFilter;
 
 namespace Generic.Repository.Base
 {
     public interface IBaseRepository<E, F>
-    where F : BaseFilter
+    where F : IBaseFilter
     where E : class
     {
         ///<summary>
