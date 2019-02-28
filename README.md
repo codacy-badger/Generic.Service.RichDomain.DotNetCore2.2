@@ -13,7 +13,6 @@
  - BaseFilter
    * Before: GenericModel.Filter
    * After: Generic.Repository.Entity.IFilter
-
 #### * BaseFilter are changed to interface new is IBaseFilter.
 #### * Filter was changed to attend more methods in lambda.
 

@@ -117,18 +117,18 @@ namespace Generic.Repository.Extension.Repository
         private static void ReturnStringTypeExp(this string value, out string output)
         {
             string returnString = "";
-            if (Regex.Match(value, @"(Equal)").Success)
+            if (!Regex.Match(value, @"(LessThan)").Success && !Regex.Match(value, @"(GreaterThan)").Success && Regex.Match(value, @"(Equal)").Success)
                 returnString = "Equals";
             else if (Regex.Match(value, @"(Contains)").Success)
                 returnString = "Contains";
-            else if (Regex.Match(value, @"(GreaterThan)").Success)
+            else if (!Regex.Match(value, @"(Equal)").Success && Regex.Match(value, @"(GreaterThan)").Success)
                 returnString = "GreaterThan";
-            else if (Regex.Match(value, @"(LessThan)").Success)
+            else if (!Regex.Match(value, @"(Equal)").Success && Regex.Match(value, @"(LessThan)").Success)
                 returnString = "LessThan";
-            else if (Regex.Match(value, @"(GreaterThanOrEquals)").Success)
-                returnString = "GreaterThanOrEquals";
-            else if (Regex.Match(value, @"(LessThanOrEquals)").Success)
-                returnString = "LessThanOrEquals";
+            else if (Regex.Match(value, @"(GreaterThanOrEqual)").Success)
+                returnString = "GreaterThanOrEqual";
+            else if (Regex.Match(value, @"(LessThanOrEqual)").Success)
+                returnString = "LessThanOrEqual";
             else returnString = "Equals";
             output = returnString;
         }
