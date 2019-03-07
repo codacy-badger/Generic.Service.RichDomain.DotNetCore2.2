@@ -45,7 +45,7 @@ namespace Generic.Repository.Entity.Pagination
         private void ValidateCtor(int count, IQueryable<E> listEntities, BaseConfigurePagination config)
         {
             if (count < 1 || config == null)
-                throw new Exception($"NameClass: {nameof(ValidateCtor)} - The {(config != null ? nameof(listEntities) : nameof(config))} is empty!");
+                throw new Exception($"NameClass: {nameof(ValidateCtor)}. {Environment.NewLine}Message: The {(config != null ? nameof(listEntities) : nameof(config))} is empty!");
         }
 
         public IEnumerable<E> Content
