@@ -1,4 +1,27 @@
-# Generic Model Layer
+# Generic Repository - RichDomain, Asp.Net Core 2.2
+
+## Initiative
+
+This project has objective to made a CRUD more easily. 
+Adding an extra layer of abstraction in application.
+This project has building using the best programmation pratices.
+
+Principles used:
+* Reactive progammation;
+* SOLID principles. 
+
+This project is builded in *asp.net core 2.2* and has the dependencies below:
+ * Microsoft.EntityFrameworkCore (>= 2.2.1)
+
+## * This project is focused in rich domains (well so I understood at least).*
+
+Like or dislike, tell me and togheter make this project better.
+*Come and be part of this project!*
+
+Link to [this](https://www.nuget.org/packages/GenericModel/1.0.9) package on nuget.org.
+Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer) 
+
+## Version Notes
 
 ### VERSION 1.0.6 - Notes:
 #### * All repositories names was changed, now the are BaseRepository and IBaseRepository.
@@ -19,26 +42,6 @@
   - BaseFilter
     * Auto Generate lambda was changed to annotation attribute. Is not necessary anymore add names complement;
     * Performance is improved.
-
-This project has objective to made a CRUD more easily. 
-
-Adding an extra layer of abstraction in application.
-This project has building using the best programmation pratices.
-
-Principles used:
-* Reactive progammation;
-* SOLID principles. 
-
-This project is builded in *asp.net core 2.2* and has the dependencies below:
- * Microsoft.EntityFrameworkCore (>= 2.2.1)
-
-## * This project is focused in rich domains (well so I understood at least).*
-
-Like or dislike, tell me and togheter make this project better.
-*Come and be part of this project!*
-
-Link to [this](https://www.nuget.org/packages/GenericModel/1.0.9) package on nuget.org.
-Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer) 
 
 ## *DOCs*
 
