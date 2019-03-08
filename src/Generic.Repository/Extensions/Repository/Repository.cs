@@ -18,9 +18,9 @@ namespace Generic.Repository.Extension.Repository
 
             ParameterExpression param = Expression.Parameter(typeof(E));
             Expression<Func<E, bool>> predicate = null;
-            LambdaMethod methodOption;
             LambdaMerge mergeOption = LambdaMerge.And;
-            string nameProp = "";
+            LambdaMethod methodOption;
+            PropertyInfo paramProp;
             filter.GetType().GetProperties().ToList().ForEach(prop =>
             {
                 var propValue = prop.GetValue(filter, null);
@@ -28,55 +28,13 @@ namespace Generic.Repository.Extension.Repository
                 {
                     prop.GetCustomAttributes(typeof(LambdaAttribute), true).ToList().ForEach(attr =>
                     {
-                        var ignore = attr.GetType().GetProperties().FirstOrDefault(x => x.Name == "IgnoreName").GetValue(attr, null);
+                        var nameProperty = attr.GetType().GetProperties().FirstOrDefault(x => x.Name == "EntityPropertyName").GetValue(attr, null);
                         Expression lambda = null;
 
-                        if (ignore != null)
-                            nameProp = prop.Name.Replace(ignore.ToString(), string.Empty);
+                        if (nameProperty != null)
+                            paramProp = typeof(E).GetProperty(nameProperty.ToString());
                         else
-                            nameProp = prop.Name;
-
-                        var paramProp = typeof(E).GetProperty(nameProp);
-
-                        methodOption = (LambdaMethod)attr.GetType().GetProperty("MethodOption").GetValue(attr, null);
-                        lambda = methodOption.SetExpressionType(param, paramProp, propValue);
-                        if (predicate == null)
-                            predicate = lambda.MergeExpressions<E>(param);
-                        else
-                            predicate = predicate.MergeExpressions<E>(mergeOption, param, lambda.MergeExpressions<E>(param));
-                        mergeOption = (LambdaMerge)attr.GetType().GetProperty("MergeOption").GetValue(attr, null);
-
-                    });
-                }
-            });
-            return predicate;
-        }
-
-        public static Expression<Func<E, bool>> GenerateLambda<E>(this E entity)
-        where E : class
-        {
-
-            ParameterExpression param = Expression.Parameter(typeof(E));
-            Expression<Func<E, bool>> predicate = null;
-            LambdaMethod methodOption;
-            LambdaMerge mergeOption = LambdaMerge.And;
-            string nameProp = "";
-            entity.GetType().GetProperties().ToList().ForEach(prop =>
-            {
-                var propValue = prop.GetValue(entity, null);
-                if (propValue != null && !propValue.ToString().Equals("0"))
-                {
-                    prop.GetCustomAttributes(typeof(LambdaAttribute), true).ToList().ForEach(attr =>
-                    {
-                        var ignore = attr.GetType().GetProperties().FirstOrDefault(x => x.Name == "IgnoreName").GetValue(attr, null);
-                        Expression lambda = null;
-
-                        if (ignore != null)
-                            nameProp = prop.Name.Replace(ignore.ToString(), string.Empty);
-                        else
-                            nameProp = prop.Name;
-
-                        var paramProp = typeof(E).GetProperty(nameProp);
+                            paramProp = typeof(E).GetProperty(prop.Name);
 
                         methodOption = (LambdaMethod)attr.GetType().GetProperty("MethodOption").GetValue(attr, null);
                         lambda = methodOption.SetExpressionType(param, paramProp, propValue);

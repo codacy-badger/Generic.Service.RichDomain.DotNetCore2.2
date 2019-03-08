@@ -13,6 +13,6 @@ namespace Generic.Repository.Extension.Attributes
         public LambdaMerge MergeOption { get; set; }
         public LambdaMethod MethodOption { get; set; }
 
-        public string IgnoreName { get; set; }
+        public string EntityPropertyName { get; set; }
     }
 }
