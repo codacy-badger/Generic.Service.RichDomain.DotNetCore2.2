@@ -69,6 +69,37 @@ pulic async MyEntity GetById(long id)
 }
 ....Controller code...
 ```
+
+### From version 1.1.1
+#### Attention this
+Now is not necessary the attibute has the same name of entity.
+After this version, for use auto generate lambda to filter is need make this:
+
+```
+//The entity is the same of above example.
+
+//My Entity Filter
+public class MyEntityFilter: IBaseFilter
+{
+  [LambdaGenerate(MethodOption = LambdaMethod.GreaterThanOrEqual, EntityPropertyName="Id")]
+  public long CodeMin { get; set; }
+  [LambdaGenerate(MethodOption = LambdaMethod.LessThanOrEqual, MergeOption= LambdaMerge.Or, EntityPropertyName="Id")]
+  public long CodeMax { get; set; }
+  /// The name property have the same name of entity property. Because this is not necessary set the EntityPropertyName. 
+  [LambdaGenerate(MethodOption = LambdaMethod.Contains)]
+  public string Name { get; set; }
+}
+
+//In Controller
+public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred([FromQuery]MyEntityFilter filter)
+{
+ return await _model.Filter(filter).ToListAsync();
+}
+
+//Lambda Generated
+// x => x.Id >= valueId && x.Id <= valueId || x.Name.Contains(valueName)
+```
+
 ### From version 1.0.9
 #### Atention on this
 * The filter property names need to be the same as the entity
@@ -122,37 +153,6 @@ public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred([FromQuery]MyE
 //Lambda Generated
 // x => x.Id == valueId && x.Name.Contains(valueName)
 ```
-
-### From version 1.1.1
-#### Attention this
-Now is not necessary the attibute has the same name of entity.
-After this version, for use auto generate lambda to filter is need make this:
-
-```
-//The entity is the same of above example.
-
-//My Entity Filter
-public class MyEntityFilter: IBaseFilter
-{
-  [LambdaGenerate(MethodOption = LambdaMethod.GreaterThanOrEqual, EntityPropertyName="Id")]
-  public long CodeMin { get; set; }
-  [LambdaGenerate(MethodOption = LambdaMethod.LessThanOrEqual, MergeOption= LambdaMerge.Or, EntityPropertyName="Id")]
-  public long CodeMax { get; set; }
-  /// The name property have the same name of entity property. Because this is not necessary set the EntityPropertyName. 
-  [LambdaGenerate(MethodOption = LambdaMethod.Contains)]
-  public string Name { get; set; }
-}
-
-//In Controller
-public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred([FromQuery]MyEntityFilter filter)
-{
- return await _model.Filter(filter).ToListAsync();
-}
-
-//Lambda Generated
-// x => x.Id >= valueId && x.Id <= valueId || x.Name.Contains(valueName)
-```
-
 
 ### From version 1.0.6
 To make a Pagination
