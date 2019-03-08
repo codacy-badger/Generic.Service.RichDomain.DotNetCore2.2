@@ -1,13 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Generic.Repository.Entity.IFilter;
 using Generic.Repository.Enum;
-using Generic.Repository.Extension.Attributes;
+using Generic.Repository.Extensions.Attributes;
+using Generic.Repository.Extensions.Commom;
+using Generic.Repository.Models.BaseEntity.BaseFilter;
 
-namespace Generic.Repository.Extension.Filter
+namespace Generic.Repository.Extensions.Filter
 {
     /// <summary>
     /// Extension Filter to generate lambda.
@@ -25,36 +27,40 @@ namespace Generic.Repository.Extension.Filter
         where E : class
         where F : IBaseFilter
         {
-
+            var typeF = typeof(F);
+            Commom.Commom.SaveOnCacheIfNonExists(typeF);
             ParameterExpression param = Expression.Parameter(typeof(E));
             Expression<Func<E, bool>> predicate = null;
             LambdaMerge mergeOption = LambdaMerge.And;
             LambdaMethod methodOption;
             PropertyInfo paramProp;
-            filter.GetType().GetProperties().ToList().ForEach(prop =>
+            if (Commom.Commom.cache.TryGetValue(typeF, out Dictionary<string, PropertyInfo> dicProperties))
             {
-                var propValue = prop.GetValue(filter, null);
-                if (propValue != null && !propValue.ToString().Equals("0") || (prop.PropertyType == typeof(DateTime)
-                && ((DateTime)propValue != DateTime.MinValue || (DateTime)propValue != DateTime.MaxValue)))
+                dicProperties.Values.ToList().ForEach(prop =>
                 {
-                    prop.GetCustomAttributes(typeof(LambdaGenerateAttribute), true).ToList().ForEach(attr =>
+                    var propValue = prop.GetValue(filter, null);
+                    if (propValue != null && !propValue.ToString().Equals("0") || (prop.PropertyType == typeof(DateTime)
+                        && ((DateTime)propValue != DateTime.MinValue || (DateTime)propValue != DateTime.MaxValue)))
                     {
-                        var nameProperty = attr.GetType().GetProperties().FirstOrDefault(x => x.Name == "EntityPropertyName").GetValue(attr, null);
-                        Expression lambda = null;
-                        
-                        paramProp = nameProperty != null ? typeof(E).GetProperty(nameProperty.ToString()) : typeof(E).GetProperty(prop.Name);
-                        
-                        methodOption = (LambdaMethod)attr.GetType().GetProperty("MethodOption").GetValue(attr, null);
-                        
-                        lambda = methodOption.SetExpressionType(param, paramProp, propValue);
-                        
-                        predicate = predicate == null ? lambda.MergeExpressions<E>(param)
-                        : predicate.MergeExpressions<E>(mergeOption, param, lambda.MergeExpressions<E>(param));
+                        prop.GetCustomAttributes(typeof(LambdaGenerateAttribute), true).ToList().ForEach(attr =>
+                        {
+                            var nameProperty = attr.GetType().GetProperties().FirstOrDefault(x => x.Name == "EntityPropertyName").GetValue(attr, null);
+                            Expression lambda = null;
 
-                        mergeOption = (LambdaMerge)attr.GetType().GetProperty("MergeOption").GetValue(attr, null);
-                    });
-                }
-            });
+                            paramProp = nameProperty != null ? typeof(E).GetProperty(nameProperty.ToString()) : typeof(E).GetProperty(prop.Name);
+
+                            methodOption = (LambdaMethod)attr.GetType().GetProperty("MethodOption").GetValue(attr, null);
+
+                            lambda = methodOption.SetExpressionType(param, paramProp, propValue);
+
+                            predicate = predicate == null ? lambda.MergeExpressions<E>(param)
+                            : predicate.MergeExpressions<E>(mergeOption, param, lambda.MergeExpressions<E>(param));
+
+                            mergeOption = (LambdaMerge)attr.GetType().GetProperty("MergeOption").GetValue(attr, null);
+                        });
+                    }
+                });
+            }
             return predicate;
         }
         /// <summary>
@@ -110,7 +116,7 @@ namespace Generic.Repository.Extension.Filter
                 return true;
             else throw new NotSupportedException($"ERROR> ClassName: {nameof(SetExpressionType)} {Environment.NewLine}Message: {prop.Name} type is string. {typeMethod} method doesn't support this type. Please inform Contains or Equal.");
         }
-        
+
         private static Expression<Func<E, bool>> MergeExpressions<E>(this Expression lambda, ParameterExpression parameter)
         where E : class => Expression.Lambda<Func<E, bool>>(lambda, parameter);
 
@@ -132,6 +138,12 @@ namespace Generic.Repository.Extension.Filter
                     break;
             }
             return Expression.Lambda<Func<E, bool>>(lambda, parameter);
+        }
+
+        private static void MapFilter<F>(this F filter)
+        where F : IBaseFilter
+        {
+
         }
     }
 }

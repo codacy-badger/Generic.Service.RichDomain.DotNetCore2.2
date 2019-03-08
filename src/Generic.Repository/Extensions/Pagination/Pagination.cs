@@ -1,7 +1,7 @@
 using System.Linq;
-using Generic.Repository.Entity.Pagination;
+using Generic.Repository.Models.BaseEntities.BasePagination;
 
-namespace Generic.Repository.Extension.Pagination
+namespace Generic.Repository.Extensions.Pagination
 {
     /// <summary>
     /// Extension method to paginate entity E

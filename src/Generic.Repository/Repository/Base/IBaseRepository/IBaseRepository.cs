@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Generic.Repository.Entity.IFilter;
+using Generic.Repository.Models.BaseEntity.BaseFilter;
 
-namespace Generic.Repository.Base
+namespace Generic.Repository.Repository.Base.IBaseRepository
 {
     public interface IBaseRepository<E, F>
     where F : IBaseFilter
@@ -18,7 +18,7 @@ namespace Generic.Repository.Base
         ///<summary>
         /// Return all data
         ///</summary>
-        IQueryable<E> GetAll();
+        IQueryable<E> GetAll(bool AsNoTrackingDefault);
         ///<summary>
         /// Return all data filtred
         /// This method generate a lambda on runtime where:
@@ -32,18 +32,12 @@ namespace Generic.Repository.Base
         /// </remarks>
         ///</summary>
         ///<param name="filter">Filter to apply</param>
-        IQueryable<E> FilterAll(F filter);
+        IQueryable<E> FilterAll(F filter, bool AsNoTrackingDefault);
         ///<summary>
         /// Return all data with pass on the predicate
         ///</summary>
         ///<param name="predicate">Condition to apply on data</param>
-        IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate);
-        /// <summary>
-        /// Return data by id 
-        /// </summary>
-        /// <param name="id">Long</param>
-        /// <returns>Task E</returns>
-        Task<E> GetByIdAsync(long id);
+        IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate, bool AsNoTrackingDefault);
         /// <summary>
         /// Return first data from a informed predicate
         /// </summary>
@@ -65,6 +59,6 @@ namespace Generic.Repository.Base
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task DeleteAsync(long id);
+        Task DeleteAsync(E entity);
     }
 }

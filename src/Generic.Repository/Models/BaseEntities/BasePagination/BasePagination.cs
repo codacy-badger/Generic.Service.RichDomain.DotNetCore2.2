@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Generic.Repository.Entity.Pagination
+namespace Generic.Repository.Models.BaseEntities.BasePagination
 {
     /// <summary>
     /// Pagination Class
@@ -17,6 +18,7 @@ namespace Generic.Repository.Entity.Pagination
         where E : class
     {
         #region Default Parameters
+        private static ConcurrentDictionary<Type, Delegate> cache = new ConcurrentDictionary<Type, Delegate>();
         private readonly bool _pageStatsInOne;
         private readonly string _defaultSort;
         private readonly string _defaultOrder;
@@ -50,8 +52,12 @@ namespace Generic.Repository.Entity.Pagination
 
         public IEnumerable<E> Content
         {
-            get => Sort == "ASC" ? _listEntities.OrderBy(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToList()
-            : _listEntities.OrderByDescending(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToList();
+            get
+            {
+                var r = Sort == "ASC" ? _listEntities.OrderBy(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToList()
+         : _listEntities.OrderByDescending(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToList();
+                return r;
+            }
         }
 
         public int TotalElements
