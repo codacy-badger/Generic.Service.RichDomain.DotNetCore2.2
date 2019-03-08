@@ -13,12 +13,12 @@ Principles used:
 This project is builded in *asp.net core 2.2* and has the dependencies below:
  * Microsoft.EntityFrameworkCore (>= 2.2.1)
 
-## * This project is focused in rich domains (well so I understood at least).*
+#### *This project is focused in rich domains (well so I understood at least).*
 
 Like or dislike, tell me and togheter make this project better.
 *Come and be part of this project!*
 
-Link to [this](https://www.nuget.org/packages/GenericModel/1.0.9) package on nuget.org.
+Link to [this](https://www.nuget.org/packages/GenericModel/1.1.1) package on nuget.org.
 Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer) 
 
 ## Version Notes
