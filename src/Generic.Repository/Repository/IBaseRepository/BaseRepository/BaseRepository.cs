@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Generic.Repository.Entity.IFilter;
-using Generic.Repository.Extension.Repository;
+using Generic.Repository.Extension.Filter;
 using Microsoft.EntityFrameworkCore;
 
 namespace Generic.Repository.Base
