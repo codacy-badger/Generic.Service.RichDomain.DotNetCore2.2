@@ -8,7 +8,7 @@ namespace Generic.Repository.Extensions.Commom
 {
     public static class Commom
     {
-        public static Dictionary<string, IEnumerable<CustomAttributeNamedArgument>> cacheAttribute = new Dictionary<string, IEnumerable<CustomAttributeNamedArgument>>();
+        public static Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>> cacheAttribute = new Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>();
         public static Dictionary<string, Dictionary<string, PropertyInfo>> cache { get; } = new Dictionary<string, Dictionary<string, PropertyInfo>>();
         public static Dictionary<Type, MethodInfo> cacheMethod { get; } = new Dictionary<Type, MethodInfo>();
 
@@ -27,14 +27,25 @@ namespace Generic.Repository.Extensions.Commom
                     {
                         cache.Add(typeName, new Dictionary<string, PropertyInfo>() { { property.Name, property } });
                     }
-                    if (saveAttribute)SaveOnCacheAttrIfNonExist(property);
+                    if (saveAttribute) SaveOnCacheAttrIfNonExist(property);
                 }
             }
         }
 
         private static void SaveOnCacheAttrIfNonExist(PropertyInfo propertyInfo)
         {
-            cacheAttribute.Add(propertyInfo.Name, propertyInfo.GetCustomAttributesData().FirstOrDefault().NamedArguments);
+            propertyInfo.GetCustomAttributesData().FirstOrDefault().NamedArguments.ToList().ForEach(attr =>
+            {
+                if (!cacheAttribute.ContainsKey(propertyInfo.Name))
+                    cacheAttribute.Add(propertyInfo.Name, new Dictionary<string, CustomAttributeTypedArgument>() { { attr.MemberName, attr.TypedValue } });
+                else cacheAttribute[propertyInfo.Name].Add(attr.MemberName, attr.TypedValue);
+            });
+        }
+
+        public static void VerifyAndSaveCache(this Type type, bool saveAttribute = false)
+        {
+            if (!cache.ContainsKey(type.Name))
+                SaveOnCacheIfNonExists(type, saveAttribute);
         }
     }
 }

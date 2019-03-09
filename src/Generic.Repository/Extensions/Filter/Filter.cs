@@ -35,10 +35,9 @@ namespace Generic.Repository.Extensions.Filter
             LambdaMethod methodOption;
             PropertyInfo paramProp;
 
-            if (!Commom.Commom.cache.ContainsKey(typeE.Name))
-                Commom.Commom.SaveOnCacheIfNonExists(typeE);
-            if (!Commom.Commom.cache.ContainsKey(typeF.Name))
-                Commom.Commom.SaveOnCacheIfNonExists(typeF, true);
+            typeE.VerifyAndSaveCache();
+            typeF.VerifyAndSaveCache(true);
+            
             if (Commom.Commom.cache.TryGetValue(typeF.Name, out Dictionary<string, PropertyInfo> dicPropertiesF))
             {
                 dicPropertiesF.Values.ToList().ForEach(prop =>
