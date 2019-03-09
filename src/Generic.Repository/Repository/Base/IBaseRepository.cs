@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Generic.Repository.Models.BaseEntity.BaseFilter;
 
-namespace Generic.Repository.Repository.Base.IBaseRepository
+namespace Generic.Repository.Repository.Base
 {
     public interface IBaseRepository<E, F>
     where F : IBaseFilter

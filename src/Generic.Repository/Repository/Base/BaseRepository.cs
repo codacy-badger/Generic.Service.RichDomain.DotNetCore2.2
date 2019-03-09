@@ -9,7 +9,7 @@ using Generic.Repository.Extensions.Commom;
 using Generic.Repository.Models.BaseEntity.BaseFilter;
 using Microsoft.EntityFrameworkCore;
 
-namespace Generic.Repository.Repository.Base.IBaseRepository
+namespace Generic.Repository.Repository.Base
 {
     ///<summary>
     /// This is a Base Actions which any entity or repository should be have.
