@@ -74,7 +74,7 @@ namespace Generic.Repository.Repository.Base.IBaseRepository
 
         private void SetThis(E item)
         {
-            if (Commom.cache.TryGetValue(typeE, out Dictionary<string, PropertyInfo> dicProperties))
+            if (Commom.cache.TryGetValue(typeE.Name, out Dictionary<string, PropertyInfo> dicProperties))
                 dicProperties.Values.ToList().ForEach(x =>
                 {
                     x.SetValue(this, x.GetValue(item, null));
@@ -83,7 +83,7 @@ namespace Generic.Repository.Repository.Base.IBaseRepository
 
         private void SetDateInclusion()
         {
-            if (Commom.cache.TryGetValue(typeE, out Dictionary<string, PropertyInfo> dicProperties))
+            if (Commom.cache.TryGetValue(typeE.Name, out Dictionary<string, PropertyInfo> dicProperties))
             {
                 if (dicProperties.TryGetValue(_dataInclusionNameField, out PropertyInfo prop))
                 {
