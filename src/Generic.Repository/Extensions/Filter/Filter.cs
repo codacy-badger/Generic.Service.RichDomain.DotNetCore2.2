@@ -28,36 +28,45 @@ namespace Generic.Repository.Extensions.Filter
         where F : IBaseFilter
         {
             var typeF = typeof(F);
-            Commom.Commom.SaveOnCacheIfNonExists(typeF);
+            var typeE = typeof(E);
             ParameterExpression param = Expression.Parameter(typeof(E));
             Expression<Func<E, bool>> predicate = null;
             LambdaMerge mergeOption = LambdaMerge.And;
             LambdaMethod methodOption;
             PropertyInfo paramProp;
-            if (Commom.Commom.cache.TryGetValue(typeF, out Dictionary<string, PropertyInfo> dicProperties))
+
+            if (!Commom.Commom.cache.ContainsKey(typeE.Name))
+                Commom.Commom.SaveOnCacheIfNonExists(typeE);
+            if (!Commom.Commom.cache.ContainsKey(typeF.Name))
+                Commom.Commom.SaveOnCacheIfNonExists(typeF, true);
+            if (Commom.Commom.cache.TryGetValue(typeF.Name, out Dictionary<string, PropertyInfo> dicPropertiesF))
             {
-                dicProperties.Values.ToList().ForEach(prop =>
+                dicPropertiesF.Values.ToList().ForEach(prop =>
                 {
+                    object nameProperty = null;
                     var propValue = prop.GetValue(filter, null);
                     if (propValue != null && !propValue.ToString().Equals("0") || (prop.PropertyType == typeof(DateTime)
                         && ((DateTime)propValue != DateTime.MinValue || (DateTime)propValue != DateTime.MaxValue)))
                     {
-                        prop.GetCustomAttributes(typeof(LambdaGenerateAttribute), true).ToList().ForEach(attr =>
-                        {
-                            var nameProperty = attr.GetType().GetProperties().FirstOrDefault(x => x.Name == "EntityPropertyName").GetValue(attr, null);
-                            Expression lambda = null;
+                        if (Commom.Commom.cacheAttribute.TryGetValue(prop.Name, out IEnumerable<CustomAttributeNamedArgument> attribute))
+                            nameProperty = attribute.SingleOrDefault(x => x.MemberName == "EntityPropertyName").TypedValue.Value;
 
-                            paramProp = nameProperty != null ? typeof(E).GetProperty(nameProperty.ToString()) : typeof(E).GetProperty(prop.Name);
+                        Expression lambda = null;
 
-                            methodOption = (LambdaMethod)attr.GetType().GetProperty("MethodOption").GetValue(attr, null);
-
-                            lambda = methodOption.SetExpressionType(param, paramProp, propValue);
-
-                            predicate = predicate == null ? lambda.MergeExpressions<E>(param)
+                        if (Commom.Commom.cache.TryGetValue(typeE.Name, out Dictionary<string, PropertyInfo> dicPropertiesE))
+                            if (dicPropertiesE.TryGetValue(nameProperty != null ? nameProperty.ToString() : prop.Name, out paramProp))
+                            {
+                                methodOption = (LambdaMethod)attribute.SingleOrDefault(x => x.MemberName == "MethodOption").TypedValue.Value;
+                                lambda = methodOption.SetExpressionType(param, paramProp, propValue);
+                            }
+                        if (lambda == null)
+                            throw new ArgumentNullException($"ERROR> ClassName: {nameof(GenerateLambda)} {Environment.NewLine}Message: The lambda is null.");
+                        predicate = predicate == null ? lambda.MergeExpressions<E>(param)
                             : predicate.MergeExpressions<E>(mergeOption, param, lambda.MergeExpressions<E>(param));
 
-                            mergeOption = (LambdaMerge)attr.GetType().GetProperty("MergeOption").GetValue(attr, null);
-                        });
+                        var merge = attribute.SingleOrDefault(x => x.MemberName == "MergeOption").TypedValue;
+                        mergeOption = merge.Value != null ? (LambdaMerge)merge.Value : LambdaMerge.And;
+
                     }
                 });
             }
