@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Generic.Repository.Extensions.Attributes;
+using Generic.Repository.Extensions.Expressions;
 
 namespace Generic.Repository.Extensions.Commom
 {
@@ -10,12 +12,17 @@ namespace Generic.Repository.Extensions.Commom
     {
         internal static int totalTypesInAssemblyModel { get; set; }
         public static Dictionary<string, Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>> CacheAttribute { get; private set; }
-        public static Dictionary<string, Dictionary<string, PropertyInfo>> Cache { get; private set;}
+        public static Dictionary<string, Dictionary<string, PropertyInfo>> Cache { get; private set; }
         public static Dictionary<Type, MethodInfo> CacheMethod { get; } = new Dictionary<Type, MethodInfo>();
 
+        /// <summary>
+        /// Set space on dictionary to improve perfomacing
+        /// </summary>
+        /// <param name="assemblyName">Assembly name of project which models alred exist</param>
+        /// <param name="nameSpace">Namespace of models and filters, using separator ";" to write differents namespace</param>
         public static void SetNamespace(string assemblyName, string nameSpace)
         {
-            totalTypesInAssemblyModel = Assembly.Load(assemblyName).GetTypes().Where(x => x.Namespace == nameSpace).Count();
+            totalTypesInAssemblyModel = Assembly.Load(assemblyName).GetTypes().Where(x => nameSpace.Split(";").Contains(x.Namespace)).Count();
             Cache = new Dictionary<string, Dictionary<string, PropertyInfo>>(totalTypesInAssemblyModel);
             CacheAttribute = new Dictionary<string, Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>>(totalTypesInAssemblyModel);
         }
