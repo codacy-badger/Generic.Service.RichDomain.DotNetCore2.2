@@ -46,7 +46,6 @@ namespace Generic.Repository.Repository.Base
 
         public virtual async Task<E> CreateAsync()
         {
-            SetDateInclusion();
             var item = ReturnE();
             SetState(EntityState.Added, item);
             await _context.SaveChangesAsync();
@@ -74,22 +73,14 @@ namespace Generic.Repository.Repository.Base
 
         private void SetThis(E item)
         {
-            if (Commom.cache.TryGetValue(typeE.Name, out Dictionary<string, PropertyInfo> dicProperties))
+            if (Commom.Cache.TryGetValue(typeE.Name, out Dictionary<string, PropertyInfo> dicProperties))
                 dicProperties.Values.ToList().ForEach(x =>
                 {
-                    x.SetValue(this, x.GetValue(item, null));
+                    if (x.Name != _dataInclusionNameField)
+                        x.SetValue(this, x.GetValue(item, null));
+                    else
+                        x.SetValue(this, DateTime.Now);
                 });
-        }
-
-        private void SetDateInclusion()
-        {
-            if (Commom.cache.TryGetValue(typeE.Name, out Dictionary<string, PropertyInfo> dicProperties))
-            {
-                if (dicProperties.TryGetValue(_dataInclusionNameField, out PropertyInfo prop))
-                {
-                    prop.SetValue(this, DateTime.Now);
-                }
-            }
         }
 
         private E ReturnE() => (E)Convert.ChangeType(this, typeE);
