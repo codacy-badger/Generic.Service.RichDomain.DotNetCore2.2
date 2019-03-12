@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Generic.Repository.Extensions.Attributes;
 using Generic.Repository.Extensions.Expressions;
+using Generic.Repository.Extensions.Properties;
 
 namespace Generic.Repository.Extensions.Commom
 {
@@ -22,27 +23,26 @@ namespace Generic.Repository.Extensions.Commom
         /// <param name="nameSpace">Namespace of models and filters, using separator ";" to write differents namespace</param>
         public static void SetNamespace(string assemblyName, string nameSpace)
         {
-            totalTypesInAssemblyModel = Assembly.Load(assemblyName).GetTypes().Where(x => nameSpace.Split(";").Contains(x.Namespace)).Count();
             Cache = new Dictionary<string, Dictionary<string, PropertyInfo>>(totalTypesInAssemblyModel);
             CacheAttribute = new Dictionary<string, Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>>(totalTypesInAssemblyModel);
         }
-        public static void SaveOnCacheIfNonExists(Type type, bool saveAttribute = false)
+        
+        public static void SaveOnCacheIfNonExists<E>(bool saveAttribute = false)
+        where E : class
         {
-            string typeName = type.Name;
-            var propertiesList = type.GetProperties();
-            if (!Cache.TryGetValue(typeName, out Dictionary<string, PropertyInfo> dicProperties))
+            string typeName = typeof(E).Name;
+            PropertyInfo[] properties = typeof(E).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+            int totalProperties = properties.Count();
+            if (!Properties<E>.CacheGet.ContainsKey(typeName) && !Properties<E>.CacheSet.ContainsKey(typeName))
             {
-                foreach (var property in propertiesList)
+                Properties<E>.CacheGet.Add(typeName, properties.ToDictionary(g => g.Name, m => CreateGetter<E>(m)));
+                Properties<E>.CacheSet.Add(typeName, properties.ToDictionary(s => s.Name, m => CreateSetter<E>(m)));
+            }
+            if (saveAttribute)
+            {
+                foreach (var property in properties)
                 {
-                    if (Cache.ContainsKey(typeName))
-                    {
-                        Cache[typeName].Add(property.Name, property);
-                    }
-                    else
-                    {
-                        Cache.Add(typeName, new Dictionary<string, PropertyInfo>() { { property.Name, property } });
-                    }
-                    if (saveAttribute) SaveOnCacheAttrIfNonExist(property, typeName, propertiesList.Count());
+                    SaveOnCacheAttrIfNonExist(property, typeName, totalProperties);
                 }
             }
         }
@@ -65,6 +65,49 @@ namespace Generic.Repository.Extensions.Commom
                      CacheAttribute[typeName][propetyName].Add(attr.MemberName, attr.TypedValue);
                  });
             });
+        }
+
+        private static Func<E, object> CreateGetter<E>(PropertyInfo property)
+        {
+            if (property == null)
+                throw new ArgumentNullException("property");
+
+            var getter = property.GetGetMethod(true);
+            if (getter == null)
+                throw new ArgumentException($"The property {property.Name} does not have a public accessor.");
+
+            var genericMethod = typeof(Commom).GetMethod("CreateGetterGeneric", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodInfo genericHelper = genericMethod.MakeGenericMethod(typeof(E), property.PropertyType);
+            return (Func<E, object>)genericHelper.Invoke(null, new object[] { getter });
+        }
+
+        private static Func<object, object> CreateGetterGeneric<T, R>(MethodInfo getter) where T : class
+        {
+            Func<T, R> getterTypedDelegate = (Func<T, R>)Delegate.CreateDelegate(typeof(Func<T, R>), getter);
+            Func<object, object> getterDelegate = (Func<object, object>)((object instance) => getterTypedDelegate((T)instance));
+            return getterDelegate;
+        }
+
+        private static Action<E, object> CreateSetter<E>(PropertyInfo property)
+        {
+            if (property == null)
+                throw new ArgumentNullException("property");
+
+            var setter = property.GetSetMethod(true);
+            if (setter == null)
+                throw new ArgumentException($"The property {property.Name} does not have a public setter.");
+
+            var genericMethod = typeof(Commom).GetMethod("CreateSetterGeneric", BindingFlags.NonPublic | BindingFlags.Static);
+
+            MethodInfo genericHelper = genericMethod.MakeGenericMethod(typeof(E), property.PropertyType);
+            return (Action<E, object>)genericHelper.Invoke(null, new object[] { setter });
+        }
+
+        private static Action<object, object> CreateSetterGeneric<T, V>(MethodInfo setter) where T : class
+        {
+            Action<T, V> setterTypedDelegate = (Action<T, V>)Delegate.CreateDelegate(typeof(Action<T, V>), setter);
+            Action<object, object> setterDelegate = (Action<object, object>)((object instance, object value) => { setterTypedDelegate((T)instance, (V)value); });
+            return setterDelegate;
         }
     }
 }

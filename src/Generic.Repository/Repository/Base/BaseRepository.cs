@@ -8,6 +8,7 @@ using Generic.Repository.Extensions.Filter;
 using Generic.Repository.Extensions.Commom;
 using Generic.Repository.Models.BaseEntity.BaseFilter;
 using Microsoft.EntityFrameworkCore;
+using Generic.Repository.Extensions.Properties;
 
 namespace Generic.Repository.Repository.Base
 {
@@ -19,6 +20,7 @@ namespace Generic.Repository.Repository.Base
     where E : class
     where F : IBaseFilter
     {
+        private E item;
         private static readonly Type typeE = typeof(E);
         protected readonly DbContext _context;
         private readonly string _dataInclusionNameField;
@@ -46,7 +48,6 @@ namespace Generic.Repository.Repository.Base
 
         public virtual async Task<E> CreateAsync()
         {
-            var item = ReturnE();
             SetState(EntityState.Added, item);
             await _context.SaveChangesAsync();
             return item;
@@ -60,27 +61,28 @@ namespace Generic.Repository.Repository.Base
 
         public virtual async Task UpdateAsync()
         {
-            var item = ReturnE();
             SetState(EntityState.Modified, item);
             await _context.SaveChangesAsync();
         }
 
         public void Map(E item)
         {
-            Commom.SaveOnCacheIfNonExists(typeE);
+            Commom.SaveOnCacheIfNonExists<E>();
             SetThis(item);
         }
 
         private void SetThis(E item)
         {
-            if (Commom.Cache.TryGetValue(typeE.Name, out Dictionary<string, PropertyInfo> dicProperties))
-                dicProperties.Values.ToList().ForEach(x =>
+            this.item = ReturnE();
+            Properties<E>.CacheGet[typeE.Name].ToList().ForEach(get =>
+            {
+                if (Properties<E>.CacheSet[typeE.Name].TryGetValue(get.Key, out Action<E, object> set))
                 {
-                    if (x.Name != _dataInclusionNameField)
-                        x.SetValue(this, x.GetValue(item, null));
-                    else
-                        x.SetValue(this, DateTime.Now);
-                });
+                    if (get.Key.Equals(_dataInclusionNameField))
+                        set(this.item, DateTime.Now);
+                    else set(this.item, get.Value(item));
+                }
+            });
         }
 
         private E ReturnE() => (E)Convert.ChangeType(this, typeE);

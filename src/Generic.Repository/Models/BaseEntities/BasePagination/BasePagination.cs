@@ -3,6 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Generic.Repository.Extensions.Commom;
+using Generic.Repository.Extensions.Expressions;
+using Generic.Repository.Extensions.Properties;
 using Microsoft.EntityFrameworkCore;
 
 namespace Generic.Repository.Models.BaseEntities.BasePagination
@@ -54,9 +57,10 @@ namespace Generic.Repository.Models.BaseEntities.BasePagination
         {
             get
             {
-                var r = Sort == "ASC" ? _listEntities.OrderBy(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToList()
-         : _listEntities.OrderByDescending(x => x.GetType().GetProperty(Order).GetValue(x, null)).Skip(Page * TotalElements).Take(Size).ToList();
-                return r;
+                Commom.SaveOnCacheIfNonExists<E>();
+                var list = Sort == "ASC" ? _listEntities.Skip(Page * TotalElements).Take(Size).OrderBy(x => Properties<E>.CacheGet[typeof(E).Name][Order](x))
+                  : _listEntities.Skip(Page * TotalElements).Take(Size).OrderByDescending(x => Properties<E>.CacheGet[typeof(E).Name][Order](x));
+                return list.ToList();
             }
         }
 

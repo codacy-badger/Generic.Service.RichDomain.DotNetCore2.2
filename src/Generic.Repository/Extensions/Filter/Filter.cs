@@ -39,8 +39,8 @@ namespace Generic.Repository.Extensions.Filter
             PropertyInfo paramProp;
 
             string typeEName = typeE.Name;
-            Commom.Commom.SaveOnCacheIfNonExists(typeE);
-            Commom.Commom.SaveOnCacheIfNonExists(typeF, true);
+            Commom.Commom.SaveOnCacheIfNonExists<E>();
+            Commom.Commom.SaveOnCacheIfNonExists<E>(true);
 
             if (Commom.Commom.Cache.TryGetValue(typeF.Name, out Dictionary<string, PropertyInfo> dicPropertiesF))
             {
