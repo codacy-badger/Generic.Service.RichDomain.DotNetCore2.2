@@ -30,9 +30,9 @@ namespace Generic.Repository.Repository.Base
 
         public BaseRepository(DbContext context, string dataInclusionNameField)
         {
-            _context = context;
             _dataInclusionNameField = dataInclusionNameField ??
                 throw new ArgumentNullException(nameof(dataInclusionNameField));
+            _context = context;
         }
 
         public virtual IQueryable<E> GetAll(bool EnableAsNoTracking) => EnableAsNoTracking ? _context.Set<E>().AsNoTracking() : _context.Set<E>();
@@ -65,7 +65,6 @@ namespace Generic.Repository.Repository.Base
 
         public void Map(E item)
         {
-            Commom.SaveOnCacheIfNonExists<E>();
             SetThis(item);
         }
 

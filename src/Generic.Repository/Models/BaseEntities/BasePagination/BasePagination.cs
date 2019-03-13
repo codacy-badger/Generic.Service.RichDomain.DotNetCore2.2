@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Generic.Repository.Extensions.Commom;
@@ -18,7 +17,6 @@ namespace Generic.Repository.Models.BaseEntities.BasePagination
         where E : class
     {
         #region Default Parameters
-        private static ConcurrentDictionary<Type, Delegate> cache = new ConcurrentDictionary<Type, Delegate>();
         private readonly bool _pageStatsInOne;
         private readonly string _defaultSort;
         private readonly string _defaultOrder;
@@ -54,7 +52,6 @@ namespace Generic.Repository.Models.BaseEntities.BasePagination
         {
             get
             {
-                Commom.SaveOnCacheIfNonExists<E>();
                 var list = Sort == "ASC" ? _listEntities.Skip(Page * TotalElements).Take(Size).OrderBy(x => Properties<E>.CacheGet[typeof(E).Name][Order](x))
                   : _listEntities.Skip(Page * TotalElements).Take(Size).OrderByDescending(x => Properties<E>.CacheGet[typeof(E).Name][Order](x));
                 return list.ToList();
