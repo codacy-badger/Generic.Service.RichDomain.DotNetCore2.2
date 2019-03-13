@@ -2,11 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Generic.Repository.Extensions.Commom;
-using Generic.Repository.Extensions.Expressions;
 using Generic.Repository.Extensions.Properties;
-using Microsoft.EntityFrameworkCore;
 
 namespace Generic.Repository.Models.BaseEntities.BasePagination
 {

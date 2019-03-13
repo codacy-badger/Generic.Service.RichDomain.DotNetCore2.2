@@ -18,7 +18,7 @@ namespace Generic.Repository.Repository.Base
         ///<summary>
         /// Return all data
         ///</summary>
-        IQueryable<E> GetAll(bool AsNoTrackingDefault);
+        IQueryable<E> GetAll(bool EnableAsNoTracking);
         ///<summary>
         /// Return all data filtred
         /// This method generate a lambda on runtime where:
@@ -32,12 +32,12 @@ namespace Generic.Repository.Repository.Base
         /// </remarks>
         ///</summary>
         ///<param name="filter">Filter to apply</param>
-        IQueryable<E> FilterAll(F filter, bool AsNoTrackingDefault);
+        IQueryable<E> FilterAll(F filter, bool EnableAsNoTracking);
         ///<summary>
         /// Return all data with pass on the predicate
         ///</summary>
         ///<param name="predicate">Condition to apply on data</param>
-        IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate, bool AsNoTrackingDefault);
+        IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate, bool EnableAsNoTracking);
         /// <summary>
         /// Return first data from a informed predicate
         /// </summary>

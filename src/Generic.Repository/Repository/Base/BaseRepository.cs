@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
 using Generic.Repository.Extensions.Filter;
 using Generic.Repository.Extensions.Commom;
@@ -18,7 +16,7 @@ namespace Generic.Repository.Repository.Base
     ///</summary>
     public abstract class BaseRepository<E, F> : IBaseRepository<E, F>
     where E : class
-    where F : IBaseFilter
+    where F : class, IBaseFilter
     {
         private E item;
         private static readonly Type typeE = typeof(E);
@@ -37,12 +35,12 @@ namespace Generic.Repository.Repository.Base
                 throw new ArgumentNullException(nameof(dataInclusionNameField));
         }
 
-        public virtual IQueryable<E> GetAll(bool AsNoTrackingDefault) => AsNoTrackingDefault ? _context.Set<E>().AsNoTracking() : _context.Set<E>();
+        public virtual IQueryable<E> GetAll(bool EnableAsNoTracking) => EnableAsNoTracking ? _context.Set<E>().AsNoTracking() : _context.Set<E>();
 
-        public virtual IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate, bool AsNoTrackingDefault) => predicate != null ?
-        GetAll(AsNoTrackingDefault).Where(predicate) : GetAll(AsNoTrackingDefault);
+        public virtual IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate, bool EnableAsNoTracking) => predicate != null ?
+        GetAll(EnableAsNoTracking).Where(predicate) : GetAll(EnableAsNoTracking);
 
-        public virtual IQueryable<E> FilterAll(F filter, bool AsNoTrackingDefault) => GetAllBy(filter.GenerateLambda<E, F>(), AsNoTrackingDefault);
+        public virtual IQueryable<E> FilterAll(F filter, bool EnableAsNoTracking) => GetAllBy(filter.GenerateLambda<E, F>(), EnableAsNoTracking);
 
         public virtual async Task<E> GetByAsync(Expression<Func<E, bool>> predicate) => await _context.Set<E>().SingleOrDefaultAsync(predicate);
 
