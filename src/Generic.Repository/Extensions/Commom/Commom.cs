@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Generic.Repository.Extensions.Properties;
 
 namespace Generic.Repository.Extensions.Commom
 {
     public static class Commom
     {
         internal static int totalTypesInAssemblyModel { get; set; }
+        public static Dictionary<string, Dictionary<string, Func<object, object>>> CacheGet { get; private set; }
+        public static Dictionary<string, Dictionary<string, Action<object, object>>> CacheSet { get; private set; }
         public static Dictionary<string, Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>> CacheAttribute { get; private set; }
         public static Dictionary<string, Dictionary<string, PropertyInfo>> CacheProperties { get; private set; }
         public static Dictionary<Type, MethodInfo> CacheMethod { get; } = new Dictionary<Type, MethodInfo>();
@@ -16,11 +17,14 @@ namespace Generic.Repository.Extensions.Commom
         /// <summary>
         /// Set space on dictionary to improve perfomacing
         /// </summary>
-        /// <param name="value">Assembly name of project which models alred exist</param>
-        public static void SetSizeByLengthProperties(int value)
+        /// <param name="AssemblyName">Assembly name of project which models alread exist</param>
+        /// <param name="Namespace">Namespace name of models alread exist</param>
+        public static void SetSizeByLengthProperties(string AssemblyName, string Namespace)
         {
-            totalTypesInAssemblyModel = value;
+            totalTypesInAssemblyModel = Assembly.Load(AssemblyName).GetTypes().Where(x => Namespace.Split(";").Contains(x.Namespace)).Count();
             CacheProperties = new Dictionary<string, Dictionary<string, PropertyInfo>>(totalTypesInAssemblyModel);
+            CacheGet = new Dictionary<string, Dictionary<string, Func<object, object>>>(totalTypesInAssemblyModel);
+            CacheSet = new Dictionary<string, Dictionary<string, Action<object, object>>>(totalTypesInAssemblyModel);
             CacheAttribute = new Dictionary<string, Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>>(totalTypesInAssemblyModel);
         }
 
@@ -29,17 +33,16 @@ namespace Generic.Repository.Extensions.Commom
         {
             string typeName = typeof(E).Name;
             PropertyInfo[] properties = null;
-            Properties<E>.SetDefaultSizeOnCache();
 
-            if (!Properties<E>.CacheGet.ContainsKey(typeName) || !Properties<E>.CacheSet.ContainsKey(typeName) || !CacheProperties.ContainsKey(typeName))
+            if (!CacheGet.ContainsKey(typeName) || !CacheSet.ContainsKey(typeName) || !CacheProperties.ContainsKey(typeName))
             {
                 properties = typeof(E).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
                 int totalProperties = properties.Length;
 
-                if (saveGet && !Properties<E>.CacheGet.ContainsKey(typeName))
-                    Properties<E>.CacheGet.Add(typeName, properties.ToDictionary(g => g.Name, m => CreateGetter<E>(m)));
-                if (saveSet && !Properties<E>.CacheSet.ContainsKey(typeName))
-                    Properties<E>.CacheSet.Add(typeName, properties.ToDictionary(s => s.Name, m => CreateSetter<E>(m)));
+                if (saveGet && !CacheGet.ContainsKey(typeName))
+                    CacheGet.Add(typeName, properties.ToDictionary(g => g.Name, m => CreateGetter<E>(m)));
+                if (saveSet && !CacheSet.ContainsKey(typeName))
+                    CacheSet.Add(typeName, properties.ToDictionary(s => s.Name, m => CreateSetter<E>(m)));
                 if (saveProperties && !CacheProperties.ContainsKey(typeName))
                     CacheProperties.Add(typeName, properties.ToDictionary(p => p.Name, p => p));
                 if (saveAttribute && !CacheAttribute.ContainsKey(typeName))
@@ -57,7 +60,7 @@ namespace Generic.Repository.Extensions.Commom
             CacheAttribute[typeName].Add(propetyName, propertyInfo.GetCustomAttributesData().SelectMany(x => x.NamedArguments).ToDictionary(x => x.MemberName, x => x.TypedValue));
         }
 
-        private static Func<E, object> CreateGetter<E>(PropertyInfo property)
+        private static Func<object, object> CreateGetter<E>(PropertyInfo property)
         {
             if (property == null)
                 throw new ArgumentNullException($"{property.Name}");
@@ -68,7 +71,7 @@ namespace Generic.Repository.Extensions.Commom
 
             var genericMethod = typeof(Commom).GetMethod("CreateGetterGeneric", BindingFlags.NonPublic | BindingFlags.Static);
             MethodInfo genericHelper = genericMethod.MakeGenericMethod(typeof(E), property.PropertyType);
-            return (Func<E, object>)genericHelper.Invoke(null, new object[] { getter });
+            return (Func<object, object>)genericHelper.Invoke(null, new object[] { getter });
         }
 
         private static Func<object, object> CreateGetterGeneric<T, R>(MethodInfo getter) where T : class
@@ -78,7 +81,7 @@ namespace Generic.Repository.Extensions.Commom
             return getterDelegate;
         }
 
-        private static Action<E, object> CreateSetter<E>(PropertyInfo property)
+        private static Action<object, object> CreateSetter<E>(PropertyInfo property)
         {
             if (property == null)
                 throw new ArgumentNullException($"{property.Name}");
@@ -90,7 +93,7 @@ namespace Generic.Repository.Extensions.Commom
             var genericMethod = typeof(Commom).GetMethod("CreateSetterGeneric", BindingFlags.NonPublic | BindingFlags.Static);
 
             MethodInfo genericHelper = genericMethod.MakeGenericMethod(typeof(E), property.PropertyType);
-            return (Action<E, object>)genericHelper.Invoke(null, new object[] { setter });
+            return (Action<object, object>)genericHelper.Invoke(null, new object[] { setter });
         }
 
         private static Action<object, object> CreateSetterGeneric<T, V>(MethodInfo setter) where T : class

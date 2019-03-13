@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Generic.Repository.Enum;
-using Generic.Repository.Extensions.Properties;
 using Generic.Repository.Models.BaseEntity.BaseFilter;
 
 namespace Generic.Repository.Extensions.Filter
@@ -34,21 +33,21 @@ namespace Generic.Repository.Extensions.Filter
             LambdaMethod methodOption;
 
             Commom.Commom.SaveOnCacheIfNonExists<F>(true, true, false, false);
-            Properties<F>.CacheGet[typeNameF].ToList().ForEach(propertyF =>
+            Commom.Commom.CacheGet[typeNameF].ToList().ForEach(propertyF =>
             {
                 Expression lambda = null;
                 string namePropertyOnE = null;
                 string namePropertyOnF = propertyF.Key;
                 var propertyValueF = propertyF.Value(filter);
-                if (propertyValueF != null && !propertyValueF.ToString().Equals("0") || (propertyValueF.GetType() == typeof(DateTime) &&
-                        ((DateTime)propertyValueF != DateTime.MinValue || (DateTime)propertyValueF != DateTime.MaxValue)))
+                if (propertyValueF != null && (!propertyValueF.ToString().Equals("0") || (propertyValueF.GetType() == typeof(DateTime) &&
+                        ((DateTime)propertyValueF != DateTime.MinValue || (DateTime)propertyValueF != DateTime.MaxValue))))
                 {
                     if (Commom.Commom.CacheAttribute.TryGetValue(typeNameF, out Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>> customAttributes))
                         if (customAttributes.TryGetValue(namePropertyOnF, out Dictionary<string, CustomAttributeTypedArgument> attributes))
                         {
                             if (attributes.TryGetValue("EntityPropertyName", out CustomAttributeTypedArgument attribute))
                                 namePropertyOnE = attribute.Value.ToString();
-                            if (Commom.Commom.CacheProperties[typeNameE].TryGetValue(namePropertyOnE ?? attribute.Value.ToString(), out PropertyInfo property))
+                            if (Commom.Commom.CacheProperties[typeNameE].TryGetValue(namePropertyOnE ?? propertyF.Key.ToString(), out PropertyInfo property))
                             {
                                 if (attributes.TryGetValue("MethodOption", out attribute))
                                 {

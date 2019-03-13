@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Generic.Repository.Extensions.Commom;
-using Generic.Repository.Extensions.Properties;
 
 namespace Generic.Repository.Models.BaseEntities.BasePagination
 {
@@ -45,15 +44,15 @@ namespace Generic.Repository.Models.BaseEntities.BasePagination
         private void ValidateCtor(int count, IQueryable<E> listEntities, BaseConfigurePagination config)
         {
             if (count < 1 || config == null)
-                throw new Exception($"NameClass: {nameof(ValidateCtor)}. {Environment.NewLine}Message: The {(config != null ? nameof(listEntities) : nameof(config))} is empty!");
+                throw new Exception($"ERROR> NameClass: {nameof(ValidateCtor)}. {Environment.NewLine}Message: The {(config != null ? nameof(listEntities) : nameof(config))} is empty!");
         }
 
         public IEnumerable<E> Content
         {
             get
             {
-                var list = Sort == "ASC" ? _listEntities.Skip(Page * TotalElements).Take(Size).OrderBy(x => Properties<E>.CacheGet[typeof(E).Name][Order](x))
-                  : _listEntities.Skip(Page * TotalElements).Take(Size).OrderByDescending(x => Properties<E>.CacheGet[typeof(E).Name][Order](x));
+                var list = Sort == "ASC" ? _listEntities.Skip(Page * TotalElements).Take(Size).OrderBy(x => Commom.CacheGet[typeof(E).Name][Order](x))
+                  : _listEntities.Skip(Page * TotalElements).Take(Size).OrderByDescending(x => Commom.CacheGet[typeof(E).Name][Order](x));
                 return list.ToList();
             }
         }

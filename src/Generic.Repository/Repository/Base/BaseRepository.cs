@@ -6,7 +6,6 @@ using Generic.Repository.Extensions.Filter;
 using Generic.Repository.Extensions.Commom;
 using Generic.Repository.Models.BaseEntity.BaseFilter;
 using Microsoft.EntityFrameworkCore;
-using Generic.Repository.Extensions.Properties;
 
 namespace Generic.Repository.Repository.Base
 {
@@ -71,9 +70,9 @@ namespace Generic.Repository.Repository.Base
         private void SetThis(E item)
         {
             this.item = ReturnE();
-            Properties<E>.CacheGet[typeE.Name].ToList().ForEach(get =>
+            Commom.CacheGet[typeE.Name].ToList().ForEach(get =>
             {
-                if (Properties<E>.CacheSet[typeE.Name].TryGetValue(get.Key, out Action<E, object> set))
+                if (Commom.CacheSet[typeE.Name].TryGetValue(get.Key, out Action<object, object> set))
                 {
                     if (get.Key.Equals(_dataInclusionNameField))
                         set(this.item, DateTime.Now);
