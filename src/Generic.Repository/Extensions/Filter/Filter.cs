@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Generic.Repository.Enum;
-using Generic.Repository.Models.BaseEntity.BaseFilter;
+using Generic.Repository.Models.BaseModel.BaseFilter;
 
 namespace Generic.Repository.Extensions.Filter
 {
@@ -142,12 +142,6 @@ namespace Generic.Repository.Extensions.Filter
                     break;
             }
             return Expression.Lambda<Func<E, bool>>(lambda, parameter);
-        }
-
-        private static void MapFilter<F>(this F filter)
-        where F : IBaseFilter
-        {
-
         }
     }
 }

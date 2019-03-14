@@ -1,4 +1,4 @@
-namespace Generic.Repository.Models.BaseEntity.BaseFilter
+namespace Generic.Repository.Models.BaseModel.BaseFilter
 {
     ///<summary>
     /// Base Filter to use for filter entities on package;

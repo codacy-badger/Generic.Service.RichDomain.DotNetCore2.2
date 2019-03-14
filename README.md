@@ -30,9 +30,9 @@ Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer)
  - BaseRepository
    * Before: GenericModel.Action
    * After: Generic.Repository.Base
- - Pagination
-   * Before: GenericModel.Pagination
-   * After: Generic.Repository.Extension.Pagination
+ - Page
+   * Before: GenericModel.Page
+   * After: Generic.Repository.Extension.Page
  - BaseFilter
    * Before: GenericModel.Filter
    * After: Generic.Repository.Entity.IFilter
@@ -158,9 +158,9 @@ public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred([FromQuery]MyE
 ```
 
 ### From version 1.0.6
-To make a Pagination
+To make a Page
 ```
-JSON of BaseConfigurePagination
+JSON of BaseConfigurePage
 {
   (int)page : 0,
   (int) size : 0
@@ -183,7 +183,7 @@ JSON Page format
 }
 ...Controller Code
         [HttpGet("Paginate")]
-        public Pagination<Category> GetPage([FromQuery]BaseConfigurePagination config)
+        public Page<Category> GetPage([FromQuery]BaseConfigurePage config)
         {
             return _model.GetAll().PaginateTo(config);
         }
