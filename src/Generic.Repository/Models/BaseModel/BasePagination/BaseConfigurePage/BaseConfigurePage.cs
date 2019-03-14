@@ -1,6 +1,6 @@
-namespace Generic.Repository.Models.BaseEntities.BasePagination
+namespace Generic.Repository.Models.BaseEntities.BasePagination.BasePage
 {
-    public class BaseConfigurePagination
+    public class BaseConfigurePage
     {
         public int page { get; set; }
         public int size { get; set; }

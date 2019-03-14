@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
-using Generic.Repository.Models.BaseEntity.BaseFilter;
+using Generic.Repository.Models.BaseModel.BaseFilter;
 
 namespace Generic.Repository.Repository.Base
 {
@@ -21,15 +22,6 @@ namespace Generic.Repository.Repository.Base
         IQueryable<E> GetAll(bool EnableAsNoTracking);
         ///<summary>
         /// Return all data filtred
-        /// This method generate a lambda on runtime where:
-        /// if the attribute on filter is string contains has used to compare;
-        /// if the attribute on filter is long and more than 0 or do not corresponds to string type, equals has used to compare;
-        /// <remarks>
-        /// EX: 
-        /// JSON Filter
-        /// {"id": 1, "Name": "TestName"}
-        /// The lambda generated corresponds to something like this: x => x.id == 1 || x.Contains("TestName")
-        /// </remarks>
         ///</summary>
         ///<param name="filter">Filter to apply</param>
         IQueryable<E> FilterAll(F filter, bool EnableAsNoTracking);
@@ -55,10 +47,15 @@ namespace Generic.Repository.Repository.Base
         /// <returns></returns>
         Task UpdateAsync();
         /// <summary>
-        /// Delete dat async
+        /// Delete data async
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         Task DeleteAsync(E entity);
+        /// <summary>
+        /// Commit async transaction if useCommit is true 
+        /// </summary>
+        /// <returns></returns>
+        Task CommitAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }
