@@ -1,5 +1,6 @@
 using System.Linq;
 using Generic.Repository.Models.BaseEntities.BasePagination.BasePage;
+using Generic.Repository.Models.BaseModel.BasePagination.BaseConfigurePage;
 
 namespace Generic.Repository.Extensions.Page
 {
@@ -15,7 +16,7 @@ namespace Generic.Repository.Extensions.Page
         /// <param name="config">Config from Page</param>
         /// <typeparam name="E">Entity E</typeparam>
         /// <returns>Paginated List E</returns>
-        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, BaseConfigurePage config)
+        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, IBaseConfigurePage config)
         where E : class => ToPage<E>(listEntities, config, false);
 
         /// <summary>
@@ -26,7 +27,7 @@ namespace Generic.Repository.Extensions.Page
         /// <param name="pageStartInOne">If Page starts on index 1</param>
         /// <typeparam name="E"></typeparam>
         /// <returns></returns>
-        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, BaseConfigurePage config, bool pageStartInOne)
+        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, IBaseConfigurePage config, bool pageStartInOne)
         where E : class => ToPage<E>(listEntities, config, pageStartInOne, "ASC");
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace Generic.Repository.Extensions.Page
         /// <param name="defaultSort">Default value to sort ("ASC" or "DESC")</param>
         /// <typeparam name="E"></typeparam>
         /// <returns></returns>
-        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, BaseConfigurePage config, bool pageStartInOne, string defaultSort)
+        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, IBaseConfigurePage config, bool pageStartInOne, string defaultSort)
         where E : class => ToPage<E>(listEntities, config, pageStartInOne, defaultSort, "Id");
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace Generic.Repository.Extensions.Page
         /// <param name="defaultOrder">Default value to order (Name property)</param>>
         /// <typeparam name="E"></typeparam>
         /// <returns></returns>
-        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, BaseConfigurePage config, bool pageStartInOne, string defaultSort, string defaultOrder)
+        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, IBaseConfigurePage config, bool pageStartInOne, string defaultSort, string defaultOrder)
         where E : class => ToPage<E>(listEntities, config, pageStartInOne, defaultSort, defaultOrder, 10);
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace Generic.Repository.Extensions.Page
         /// <param name="defaultSize">Default value to size</param>
         /// <typeparam name="E"></typeparam>
         /// <returns></returns>
-        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, BaseConfigurePage config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
+        public static Page<E> ToPage<E>(this IQueryable<E> listEntities, IBaseConfigurePage config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
         where E : class => new Page<E>(listEntities, config, pageStartInOne, defaultSort, defaultOrder, defaultSize);
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Generic.Repository.Extensions.Commom;
+using Generic.Repository.Models.BaseModel.BasePagination.BaseConfigurePage;
 
 namespace Generic.Repository.Models.BaseEntities.BasePagination.BasePage
 {
@@ -22,13 +23,13 @@ namespace Generic.Repository.Models.BaseEntities.BasePagination.BasePage
         private readonly int _defaultSize;
         #endregion
         #region Parameters Ctor
-        private readonly BaseConfigurePage _config;
+        private readonly IBaseConfigurePage _config;
         private readonly IQueryable<E> _listEntities;
         private readonly int _count;
         #endregion
 
         #region Ctor
-        public Page(IQueryable<E> listEntities, BaseConfigurePage config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
+        public Page(IQueryable<E> listEntities, IBaseConfigurePage config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
         {
             _count = listEntities.Count();
             ValidateCtor(_count, listEntities, config);
@@ -41,7 +42,7 @@ namespace Generic.Repository.Models.BaseEntities.BasePagination.BasePage
         }
         #endregion
 
-        private void ValidateCtor(int count, IQueryable<E> listEntities, BaseConfigurePage config)
+        private void ValidateCtor(int count, IQueryable<E> listEntities, IBaseConfigurePage config)
         {
             if (count < 1 || config == null)
                 throw new Exception($"ERROR> NameClass: {nameof(ValidateCtor)}. {Environment.NewLine}Message: The {(config != null ? nameof(listEntities) : nameof(config))} is empty!");
