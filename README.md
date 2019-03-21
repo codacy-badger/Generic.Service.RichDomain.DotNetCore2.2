@@ -7,8 +7,9 @@ Adding an extra layer of abstraction in application.
 This project has building using the best programmation pratices.
 
 Principles used:
-* Reactive progammation;
-* SOLID principles. 
+* Reactive programmation;
+* *DRY* principle;
+* *SOLID* principles. 
 
 This project is builded in *asp.net core 2.2* and has the dependencies below:
  * Microsoft.EntityFrameworkCore (>= 2.2.1)
@@ -18,39 +19,17 @@ This project is builded in *asp.net core 2.2* and has the dependencies below:
 Like or dislike, tell me and togheter make this project better.
 *Come and be part of this project!*
 
-Link to [this](https://www.nuget.org/packages/GenericModel/1.1.1) package on nuget.org.
-Link to [Service](https://github.com/guilhermecaixeta/GenericModelLayer) 
+Link to [this](https://www.nuget.org/packages/Generic.Service.DotNetCore/1.0.0) package on nuget.org.
+Link to [Service](https://github.com/guilhermecaixeta/Generic.Service.RichDomain.DotNetCore2.2) 
 
 ## Version Notes
 
-### VERSION 1.0.6 - Notes:
-#### * All repositories names was changed, now the are BaseService and IBaseService.
-### VERSION 1.0.9 - Notes:
-#### * All Namespace of project was changed to make more easily and intuitive. 
- - BaseService
-   * Before: GenericModel.Action
-   * After: Generic.Service.Base
- - Page
-   * Before: GenericModel.Page
-   * After: Generic.Service.Extension.Page
- - BaseFilter
-   * Before: GenericModel.Filter
-   * After: Generic.Service.Entity.IFilter
-#### * BaseFilter are changed to interface new is IBaseFilter.
-#### * Filter was changed to attend more methods in lambda.
-### VERSION 1.1.1 - Notes:
-  - BaseFilter
-    * Auto Generate lambda was changed to annotation attribute. Is not necessary anymore add names complement;
-    * Performance is improved.
+### VERSION 1.0.0 - Notes:
+In this project you have a service layer to implements your projects;
 
 ## *DOCs*
 
 For implements this package, follow the steps:
-
-- Install package:
-  * *Package Manager* > Install-Package GenericModel -Version 1.0.9
-  * *.Net CLI* > dotnet add package GenericModel --version 1.0.9
-  * *Paket CLI* > paket add GenericModel --version 1.0.9
   
 - In your Service make this:
   
@@ -73,10 +52,8 @@ pulic async MyEntity GetById(long id)
 ....Controller code...
 ```
 
-### From version 1.1.1
 #### Attention this
-Now is not necessary the attibute has the same name of entity.
-After this version, for use auto generate lambda to filter is need make this:
+For use auto generate lambda to filter is need make this:
 
 ```
 //The entity is the same of above example.
@@ -103,7 +80,6 @@ public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred([FromQuery]MyE
 // x => x.Id >= valueId && x.Id <= valueId || x.Name.Contains(valueName)
 ```
 
-### From version 1.0.9
 #### Atention on this
 * The filter property names need to be the same as the entity
 
@@ -157,7 +133,6 @@ public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred([FromQuery]MyE
 // x => x.Id == valueId && x.Name.Contains(valueName)
 ```
 
-### From version 1.0.6
 To make a Page
 ```
 JSON of BaseConfigurePage
@@ -185,10 +160,37 @@ JSON Page format
         [HttpGet("Paginate")]
         public Page<Category> GetPage([FromQuery]BaseConfigurePage config)
         {
-            return _model.GetAll().PaginateTo(config);
+            return _model.GetAll().ToPage<Entity>(config);
         }
 ...more code...
 ```
+
+If you need map for another object
+
+```
+public class EntityReturn
+{
+  public string name {get; set;}
+}
+
+//....more code
+public class MapData{
+
+public class IEnumerable<EntityReturn> MapEntityToEntityReturn(IEnumerable<Entity> list){
+ return list.Select(x => new EntityReturn{name = x.Name});
+}
+
+//....mode code
+
+  [HttpGet("Paginate")]
+  public Page<Entity, EntityReturn> GetPage([FromQuery]BaseConfigurePage config)
+  {
+      var funcMap = (Func<IEnumerable<Entity>, IEnumerable<EntityReturn>>)Delegate.CreateDelegate(typeof(Func<IEnumerable<Entity>, IEnumerable<EntityReturn>>), typeof(MapData).GetMethod("MapEntityToEntityReturn"));
+      return _model.GetAll().ToPage<Entity, EntityReturn>(funcMap, config);
+  }
+
+```
+
 
 Saving data on database:
 ```
