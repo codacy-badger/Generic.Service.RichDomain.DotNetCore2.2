@@ -1,4 +1,4 @@
-namespace Generic.Repository.Enum
+namespace Generic.Service.Enum
 {
     public enum LambdaMethod
     {

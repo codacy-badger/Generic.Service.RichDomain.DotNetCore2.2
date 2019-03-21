@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generic.Repository", "src\Generic.Repository\Generic.Repository.csproj", "{D1E67E68-B680-41CE-85EC-DA2824DAD180}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generic.Service", "src\Generic.Service\Generic.Service.csproj", "{D1E67E68-B680-41CE-85EC-DA2824DAD180}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

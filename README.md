@@ -1,4 +1,4 @@
-# Generic Repository - RichDomain, Asp.Net Core 2.2
+# Generic Service - RichDomain, Asp.Net Core 2.2
 
 ## Initiative
 
@@ -19,23 +19,23 @@ Like or dislike, tell me and togheter make this project better.
 *Come and be part of this project!*
 
 Link to [this](https://www.nuget.org/packages/GenericModel/1.1.1) package on nuget.org.
-Link to [repository](https://github.com/guilhermecaixeta/GenericModelLayer) 
+Link to [Service](https://github.com/guilhermecaixeta/GenericModelLayer) 
 
 ## Version Notes
 
 ### VERSION 1.0.6 - Notes:
-#### * All repositories names was changed, now the are BaseRepository and IBaseRepository.
+#### * All repositories names was changed, now the are BaseService and IBaseService.
 ### VERSION 1.0.9 - Notes:
 #### * All Namespace of project was changed to make more easily and intuitive. 
- - BaseRepository
+ - BaseService
    * Before: GenericModel.Action
-   * After: Generic.Repository.Base
+   * After: Generic.Service.Base
  - Page
    * Before: GenericModel.Page
-   * After: Generic.Repository.Extension.Page
+   * After: Generic.Service.Extension.Page
  - BaseFilter
    * Before: GenericModel.Filter
-   * After: Generic.Repository.Entity.IFilter
+   * After: Generic.Service.Entity.IFilter
 #### * BaseFilter are changed to interface new is IBaseFilter.
 #### * Filter was changed to attend more methods in lambda.
 ### VERSION 1.1.1 - Notes:
@@ -52,10 +52,10 @@ For implements this package, follow the steps:
   * *.Net CLI* > dotnet add package GenericModel --version 1.0.9
   * *Paket CLI* > paket add GenericModel --version 1.0.9
   
-- In your repository make this:
+- In your Service make this:
   
 ```
-public class MyEntity: BaseRepository<MyEntity, IBaseFilter>, IBaseRepository<MyEntity, IBaseFilter>
+public class MyEntity: BaseService<MyEntity, IBaseFilter>, IBaseService<MyEntity, IBaseFilter>
 {
 //if has any code you implements here!!!
 }
