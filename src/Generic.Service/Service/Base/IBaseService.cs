@@ -3,44 +3,44 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Generic.Repository.Models.BaseModel.BaseFilter;
+using Generic.Service.Models.BaseModel.BaseFilter;
 
-namespace Generic.Repository.Repository.Base
+namespace Generic.Service.Service.Base
 {
-    public interface IBaseRepository<E, F>
-    where F : IBaseFilter
-    where E : class
+    public interface IBaseService<TValue, TFilter>
+    where TFilter : IBaseFilter
+    where TValue : class
     {
         ///<summary>
         /// Map the sended entity to this entity
         ///</summary>
         ///<param name="item">Item to map</param>
-        void Map(E item);
+        void Map(TValue item);
         ///<summary>
         /// Return all data
         ///</summary>
-        IQueryable<E> GetAll(bool EnableAsNoTracking);
+        IQueryable<TValue> GetAll(bool EnableAsNoTracking);
         ///<summary>
         /// Return all data filtred
         ///</summary>
         ///<param name="filter">Filter to apply</param>
-        IQueryable<E> FilterAll(F filter, bool EnableAsNoTracking);
+        IQueryable<TValue> FilterAll(TFilter filter, bool EnableAsNoTracking);
         ///<summary>
         /// Return all data with pass on the predicate
         ///</summary>
         ///<param name="predicate">Condition to apply on data</param>
-        IQueryable<E> GetAllBy(Expression<Func<E, bool>> predicate, bool EnableAsNoTracking);
+        IQueryable<TValue> GetAllBy(Expression<Func<TValue, bool>> predicate, bool EnableAsNoTracking);
         /// <summary>
         /// Return first data from a informed predicate
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        Task<E> GetByAsync(Expression<Func<E, bool>> predicate);
+        Task<TValue> GetByAsync(Expression<Func<TValue, bool>> predicate);
         /// <summary>
         /// Save data async
         /// </summary>
         /// <returns></returns>
-        Task<E> CreateAsync();
+        Task<TValue> CreateAsync();
         /// <summary>
         /// Update data async
         /// </summary>
@@ -51,7 +51,7 @@ namespace Generic.Repository.Repository.Base
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task DeleteAsync(E entity);
+        Task DeleteAsync(TValue entity);
         /// <summary>
         /// Commit async transaction if useCommit is true 
         /// </summary>

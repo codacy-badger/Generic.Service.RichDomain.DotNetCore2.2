@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Generic.Repository.Enum;
-using Generic.Repository.Models.BaseModel.BaseFilter;
+using Generic.Service.Enum;
+using Generic.Service.Models.BaseModel.BaseFilter;
 
-namespace Generic.Repository.Extensions.Filter
+namespace Generic.Service.Extensions.Filter
 {
     /// <summary>
     /// Extension Filter to generate lambda.
@@ -17,47 +17,47 @@ namespace Generic.Repository.Extensions.Filter
         /// Generate lambda method
         /// </summary>
         /// <param name="filter">Object filter</param>
-        /// <typeparam name="E">Type Entity</typeparam>
+        /// <typeparam name="TValue">Type Entity</typeparam>
         /// <typeparam name="F">Type Filter</typeparam>
         /// <returns>Predicate generated</returns>
-        public static Expression<Func<E, bool>> GenerateLambda<E, F>(this F filter)
-        where E : class
-        where F : class, IBaseFilter
+        public static Expression<Func<TValue,  bool>> GenerateLambda<TValue, TFilter>(this TFilter filter)
+        where TValue : class
+        where TFilter : class, IBaseFilter
         {
-            string typeNameF = typeof(F).Name;
-            string typeNameE = typeof(E).Name;
+            string typeNameTFilter = typeof(TFilter).Name;
+            string typeNameTValue = typeof(TValue).Name;
 
-            ParameterExpression param = Expression.Parameter(typeof(E));
-            Expression<Func<E, bool>> predicate = null;
+            ParameterExpression param = Expression.Parameter(typeof(TValue));
+            Expression<Func<TValue,  bool>> predicate = null;
             LambdaMerge mergeOption = LambdaMerge.And;
             LambdaMethod methodOption;
 
-            Commom.Commom.SaveOnCacheIfNonExists<F>(true, true, false, false);
-            Commom.Commom.CacheGet[typeNameF].ToList().ForEach(propertyF =>
+            Commom.Commom.SaveOnCacheIfNonExists<TFilter>(true, true, false, false);
+            Commom.Commom.CacheGet[typeNameTFilter].ToList().ForEach(propertyTFilter =>
             {
                 Expression lambda = null;
                 string namePropertyOnE = null;
-                string namePropertyOnF = propertyF.Key;
-                var propertyValueF = propertyF.Value(filter);
-                if (propertyValueF != null && (!propertyValueF.ToString().Equals("0") || (propertyValueF.GetType() == typeof(DateTime) &&
-                        ((DateTime)propertyValueF != DateTime.MinValue || (DateTime)propertyValueF != DateTime.MaxValue))))
+                string namePropertyOnTFilter = propertyTFilter.Key;
+                var propertyValueTFilter = propertyTFilter.Value(filter);
+                if (propertyValueTFilter != null && (!propertyValueTFilter.ToString().Equals("0") || (propertyValueTFilter.GetType() == typeof(DateTime) &&
+                        ((DateTime)propertyValueTFilter != DateTime.MinValue || (DateTime)propertyValueTFilter != DateTime.MaxValue))))
                 {
-                    if (Commom.Commom.CacheAttribute.TryGetValue(typeNameF, out Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>> customAttributes))
-                        if (customAttributes.TryGetValue(namePropertyOnF, out Dictionary<string, CustomAttributeTypedArgument> attributes))
+                    if (Commom.Commom.CacheAttribute.TryGetValue(typeNameTFilter, out Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>> customAttributes))
+                        if (customAttributes.TryGetValue(namePropertyOnTFilter, out Dictionary<string, CustomAttributeTypedArgument> attributes))
                         {
                             if (attributes.TryGetValue("EntityPropertyName", out CustomAttributeTypedArgument attribute))
                                 namePropertyOnE = attribute.Value.ToString();
-                            if (Commom.Commom.CacheProperties[typeNameE].TryGetValue(namePropertyOnE ?? propertyF.Key.ToString(), out PropertyInfo property))
+                            if (Commom.Commom.CacheProperties[typeNameTValue].TryGetValue(namePropertyOnE ?? propertyTFilter.Key.ToString(), out PropertyInfo property))
                             {
                                 if (attributes.TryGetValue("MethodOption", out attribute))
                                 {
                                     methodOption = (LambdaMethod)attribute.Value;
-                                    lambda = methodOption.SetExpressionType(param, property, propertyValueF);
+                                    lambda = methodOption.SetExpressionType(param, property, propertyValueTFilter);
                                 }
                                 if (lambda == null)
                                     throw new ArgumentNullException($"ERROR> ClassName: {nameof(GenerateLambda)} {Environment.NewLine}Message: Lambda is null.");
-                                predicate = predicate == null ? lambda.MergeExpressions<E>(param) :
-                                    predicate.MergeExpressions<E>(mergeOption, param, lambda.MergeExpressions<E>(param));
+                                predicate = predicate == null ? lambda.MergeExpressions<TValue>(param) :
+                                    predicate.MergeExpressions<TValue>(mergeOption, param, lambda.MergeExpressions<TValue>(param));
                                 if (attributes.TryGetValue("MergeOption", out attribute))
                                     mergeOption = (LambdaMerge)attribute.Value;
                                 else mergeOption = LambdaMerge.And;
@@ -121,11 +121,11 @@ namespace Generic.Repository.Extensions.Filter
             else throw new NotSupportedException($"ERROR> ClassName: {nameof(SetExpressionType)} {Environment.NewLine}Message: {prop.Name} type is string. {typeMethod} method doesn't support this type. Please inform Contains or Equal.");
         }
 
-        private static Expression<Func<E, bool>> MergeExpressions<E>(this Expression lambda, ParameterExpression parameter)
-        where E : class => Expression.Lambda<Func<E, bool>>(lambda, parameter);
+        private static Expression<Func<TValue,  bool>> MergeExpressions<TValue>(this Expression lambda, ParameterExpression parameter)
+        where TValue : class => Expression.Lambda<Func<TValue,  bool>>(lambda, parameter);
 
-        private static Expression<Func<E, bool>> MergeExpressions<E>(this Expression<Func<E, bool>> predicate, LambdaMerge typeMerge, ParameterExpression parameter, Expression<Func<E, bool>> predicateMerge)
-        where E : class
+        private static Expression<Func<TValue,  bool>> MergeExpressions<TValue>(this Expression<Func<TValue,  bool>> predicate, LambdaMerge typeMerge, ParameterExpression parameter, Expression<Func<TValue,  bool>> predicateMerge)
+        where TValue : class
         {
             Expression lambda = null;
             switch (typeMerge)
@@ -141,7 +141,7 @@ namespace Generic.Repository.Extensions.Filter
                         Expression.Invoke(predicateMerge, parameter));
                     break;
             }
-            return Expression.Lambda<Func<E, bool>>(lambda, parameter);
+            return Expression.Lambda<Func<TValue,  bool>>(lambda, parameter);
         }
     }
 }

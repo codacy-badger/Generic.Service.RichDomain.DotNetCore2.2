@@ -1,4 +1,4 @@
-namespace Generic.Repository.Models.BaseModel.BasePagination.BaseConfigurePage
+namespace Generic.Service.Models.BaseModel.BasePagination.BaseConfigurePage
 {
     public class BaseConfigurePage : IBaseConfigurePage
     {

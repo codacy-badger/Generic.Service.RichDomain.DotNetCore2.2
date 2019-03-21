@@ -1,7 +1,7 @@
 using System;
-using Generic.Repository.Enum;
+using Generic.Service.Enum;
 
-namespace Generic.Repository.Attributes.Lambda
+namespace Generic.Service.Attributes.Lambda
 {
     /// <summary>
     /// Attribute to auto generate lambda
