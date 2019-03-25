@@ -80,59 +80,6 @@ public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred([FromQuery]MyE
 // x => x.Id >= valueId && x.Id <= valueId || x.Name.Contains(valueName)
 ```
 
-#### Atention on this
-* The filter property names need to be the same as the entity
-
-Now this method can be generate lambda by names complements
-
-If you add one this word below the generated lambda will attend this.
-
-List words reserved to lambda methods:
-* Equal
-* Contains (only used in string types)
-* GreaterThan
-* LessThan
-* GreaterThanOrEquals
-* LessThanOrEquals
-
-#### To use this words: IdEqual
-
-Generated lambda: x => x.Id == value;
-
-List words reserved to merge expressions:
-* Or
-* And
-
-#### To use this words: IdEqualAnd
-
-Generated lambda: x => x.Id == value && .....;
-
-#### If none word reserved is informed on properties the method assumes the follow default values:
-* word reserved to merge expressions : And
-* word reserved to lambda methods: Equal
-
-```
-//The entity is the same of above example.
-
-//My Entity Filter
-public class MyEntityFilter: IBaseFilter
-{
-  [FromQuery(Name="Id")]
-  public long IdEqualAnd {get; set;}
-  [FromQuery(Name="Name")]
-  public string NameContains {get; set;}
-}
-
-//In Controller
-public async Task<ActionResult<IEnumerable<MyEntity>>> GetFiltred([FromQuery]MyEntityFilter filter)
-{
- return await _model.Filter(filter).ToListAsync();
-}
-
-//Lambda Generated
-// x => x.Id == valueId && x.Name.Contains(valueName)
-```
-
 To make a Page
 ```
 JSON of BaseConfigurePage
