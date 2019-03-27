@@ -11,6 +11,12 @@ Principles used:
 * *DRY* principle;
 * *SOLID* principles. 
 
+### Contens on this project:
+* Implemented Service Layer;
+* Abstraction on the service layer;
+* Pagination;
+* Auto Generation Filters (To apply on the pagination).
+
 This project is builded in *asp.net core 2.2* and has the dependencies below:
  * Microsoft.EntityFrameworkCore (>= 2.2.1)
 
