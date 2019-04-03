@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace Generic.Service.Models.BaseModel.BasePagination {
-    public interface IBasePage<TReturn>
+namespace Generic.Service.Models.BaseModel.Page {
+    public interface IPage<TReturn>
      where TReturn: class
      {
         IEnumerable<TReturn> Content { get; }

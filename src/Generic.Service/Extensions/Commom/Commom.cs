@@ -7,7 +7,8 @@ namespace Generic.Service.Extensions.Commom
 {
     public static class Commom
     {
-        internal static int totalTypesInAssemblyModel { get; set; }
+        internal static bool isExecuted { get; set; } = false;
+        internal static int TotalTypesInAssemblyModel { get; set; }
         public static Dictionary<string, Dictionary<string, Func<object, object>>> CacheGet { get; private set; }
         public static Dictionary<string, Dictionary<string, Action<object, object>>> CacheSet { get; private set; }
         public static Dictionary<string, Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>> CacheAttribute { get; private set; }
@@ -21,16 +22,58 @@ namespace Generic.Service.Extensions.Commom
         /// <param name="Namespace">Namespace name of models alread exist</param>
         public static void SetSizeByLengthProperties(string AssemblyName, string Namespace)
         {
-            totalTypesInAssemblyModel = Assembly.Load(AssemblyName).GetTypes().Where(x => Namespace.Split(";").Contains(x.Namespace)).Count();
-            CacheProperties = new Dictionary<string, Dictionary<string, PropertyInfo>>(totalTypesInAssemblyModel);
-            CacheGet = new Dictionary<string, Dictionary<string, Func<object, object>>>(totalTypesInAssemblyModel);
-            CacheSet = new Dictionary<string, Dictionary<string, Action<object, object>>>(totalTypesInAssemblyModel);
-            CacheAttribute = new Dictionary<string, Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>>(totalTypesInAssemblyModel);
+            isExecuted = true;
+            AssemblyName.IsNull(nameof(AssemblyName), nameof(SetSizeByLengthProperties));
+            Namespace.IsNull(nameof(Namespace), nameof(SetSizeByLengthProperties));
+            int size = Assembly.Load(AssemblyName).GetTypes().Where(x => Namespace.Split(";").Contains(x.Namespace)).Count();
+            if (size > 0)
+            {
+                TotalTypesInAssemblyModel = size;
+                CacheProperties = new Dictionary<string, Dictionary<string, PropertyInfo>>(TotalTypesInAssemblyModel);
+                CacheGet = new Dictionary<string, Dictionary<string, Func<object, object>>>(TotalTypesInAssemblyModel);
+                CacheSet = new Dictionary<string, Dictionary<string, Action<object, object>>>(TotalTypesInAssemblyModel);
+                CacheAttribute = new Dictionary<string, Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>>(TotalTypesInAssemblyModel);
+            }
+            else
+            {
+                CacheProperties = new Dictionary<string, Dictionary<string, PropertyInfo>>();
+                CacheGet = new Dictionary<string, Dictionary<string, Func<object, object>>>();
+                CacheSet = new Dictionary<string, Dictionary<string, Action<object, object>>>();
+                CacheAttribute = new Dictionary<string, Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>>();
+            }
         }
 
-        public static void SaveOnCacheIfNonExists<TValue>(bool saveAttribute = false, bool saveGet = true, bool saveSet = true, bool saveProperties = true)
+        public static void SaveOnCacheIfNonExists<TValue>()
         where TValue : class
         {
+            SaveOnCacheIfNonExists<TValue>(true, true, true, true);
+        }
+
+        public static void SaveOnCacheIfNonExists<TValue>(bool saveAttribute)
+        where TValue : class
+        {
+            SaveOnCacheIfNonExists<TValue>(saveAttribute, true, true, true);
+        }
+
+        public static void SaveOnCacheIfNonExists<TValue>(bool saveAttribute, bool saveGet)
+        where TValue : class
+        {
+            SaveOnCacheIfNonExists<TValue>(saveAttribute, saveGet, true, true);
+        }
+
+        public static void SaveOnCacheIfNonExists<TValue>(bool saveAttribute, bool saveGet, bool saveSet)
+        where TValue : class
+        {
+            SaveOnCacheIfNonExists<TValue>(saveAttribute, saveGet, saveSet, true);
+        }
+
+        public static void SaveOnCacheIfNonExists<TValue>(bool saveAttribute, bool saveGet, bool saveSet, bool saveProperties)
+        where TValue : class
+        {
+            if (!isExecuted)
+            {
+                throw new OperationCanceledException($"Method {nameof(SetSizeByLengthProperties)} is not instantiate. Please invoke this method!");
+            }
             string typeName = typeof(TValue).Name;
             PropertyInfo[] properties = null;
 
@@ -40,11 +83,17 @@ namespace Generic.Service.Extensions.Commom
                 int totalProperties = properties.Length;
 
                 if (saveGet && !CacheGet.ContainsKey(typeName))
+                {
                     CacheGet.Add(typeName, properties.ToDictionary(g => g.Name, m => CreateGetter<TValue>(m)));
+                }
                 if (saveSet && !CacheSet.ContainsKey(typeName))
+                {
                     CacheSet.Add(typeName, properties.ToDictionary(s => s.Name, m => CreateSetter<TValue>(m)));
+                }
                 if (saveProperties && !CacheProperties.ContainsKey(typeName))
+                {
                     CacheProperties.Add(typeName, properties.ToDictionary(p => p.Name, p => p));
+                }
                 if (saveAttribute && !CacheAttribute.ContainsKey(typeName))
                 {
                     CacheAttribute.Add(typeName, new Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>(totalProperties));
@@ -62,45 +111,56 @@ namespace Generic.Service.Extensions.Commom
 
         private static Func<object, object> CreateGetter<TValue>(PropertyInfo property)
         {
-            if (property == null)
-                throw new ArgumentNullException($"{property.Name}");
-
+            property.IsNull(property.Name, nameof(CreateGetter));
             var getter = property.GetGetMethod(true);
             if (getter == null)
+            {
                 throw new ArgumentException($"ERROR> ClassName: {nameof(CreateGetter)} {Environment.NewLine}Message: The property {property.Name} does not have a public accessor.");
-
+            }
             MethodInfo genericMethod = typeof(Commom).GetMethod("CreateGetterGeneric", BindingFlags.NonPublic | BindingFlags.Static);
             MethodInfo genericHelper = genericMethod.MakeGenericMethod(typeof(TValue), property.PropertyType);
             return (Func<object, object>)genericHelper.Invoke(null, new object[] { getter });
         }
 
-        private static Func<object, object> CreateGetterGeneric<T, R>(MethodInfo getter) where T : class
+        private static Func<object, object> CreateGetterGeneric<TValue, TReturn>(MethodInfo getter) where TValue : class
         {
-            Func<T, R> getterTypedDelegate = (Func<T, R>)Delegate.CreateDelegate(typeof(Func<T, R>), getter);
-            Func<object, object> getterDelegate = (Func<object, object>)((object instance) => getterTypedDelegate((T)instance));
+            Func<TValue, TReturn> getterTypedDelegate = (Func<TValue, TReturn>)Delegate.CreateDelegate(typeof(Func<TValue, TReturn>), getter);
+            Func<object, object> getterDelegate = ((object instance) => getterTypedDelegate((TValue)instance));
             return getterDelegate;
         }
 
         private static Action<object, object> CreateSetter<TValue>(PropertyInfo property)
         {
-            if (property == null)
-                throw new ArgumentNullException($"{property.Name}");
-
+            property.IsNull(property.Name, nameof(CreateSetter));
+            
             var setter = property.GetSetMethod(true);
             if (setter == null)
-                throw new ArgumentException($"ERROR> ClassName: {nameof(CreateSetter)} {Environment.NewLine}Message:The property {property.Name} does not have a public setter.");
-
+            {
+                throw new ArgumentException($"ERROR> ClassName: {nameof(CreateSetter)} {Environment.NewLine}Message: The property {property.Name} does not have a public setter.");
+            }
             var genericMethod = typeof(Commom).GetMethod("CreateSetterGeneric", BindingFlags.NonPublic | BindingFlags.Static);
 
             MethodInfo genericHelper = genericMethod.MakeGenericMethod(typeof(TValue), property.PropertyType);
             return (Action<object, object>)genericHelper.Invoke(null, new object[] { setter });
         }
 
-        private static Action<object, object> CreateSetterGeneric<T, V>(MethodInfo setter) where T : class
+        private static Action<object, object> CreateSetterGeneric<TValue, TInput>(MethodInfo setter) where TValue : class
         {
-            Action<T, V> setterTypedDelegate = (Action<T, V>)Delegate.CreateDelegate(typeof(Action<T, V>), setter);
-            Action<object, object> setterDelegate = (Action<object, object>)((object instance, object value) => { setterTypedDelegate((T)instance, (V)value); });
+            Action<TValue, TInput> setterTypedDelegate = (Action<TValue, TInput>)Delegate.CreateDelegate(typeof(Action<TValue, TInput>), setter);
+            Action<object, object> setterDelegate = (object instance, object value) => { setterTypedDelegate((TValue)instance, (TInput)value); };
             return setterDelegate;
+        }
+
+        private static void IsNull(this object value, string nameObject, string nameClass)
+        {
+            if (value.GetType() == typeof(string) && string.IsNullOrEmpty(value.ToString()))
+            {
+                throw new ArgumentNullException($"ERROR> ClassName: {nameClass} {Environment.NewLine} Message: {nameObject} is null or empty.");
+            }
+            else if (value == null)
+            {
+                throw new ArgumentNullException($"ERROR> ClassName: {nameClass} {Environment.NewLine} Message: {nameObject} is null or empty.");
+            }
         }
     }
 }

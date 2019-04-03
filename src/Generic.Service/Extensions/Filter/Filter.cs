@@ -1,10 +1,10 @@
+using Generic.Service.Enum;
+using Generic.Service.Models.BaseModel.BaseFilter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Generic.Service.Enum;
-using Generic.Service.Models.BaseModel.BaseFilter;
 
 namespace Generic.Service.Extensions.Filter
 {
@@ -20,7 +20,7 @@ namespace Generic.Service.Extensions.Filter
         /// <typeparam name="TValue">Type Entity</typeparam>
         /// <typeparam name="F">Type Filter</typeparam>
         /// <returns>Predicate generated</returns>
-        public static Expression<Func<TValue,  bool>> GenerateLambda<TValue, TFilter>(this TFilter filter)
+        public static Func<TValue, bool> GenerateLambda<TValue, TFilter>(this TFilter filter)
         where TValue : class
         where TFilter : class, IBaseFilter
         {
@@ -28,7 +28,7 @@ namespace Generic.Service.Extensions.Filter
             string typeNameTValue = typeof(TValue).Name;
 
             ParameterExpression param = Expression.Parameter(typeof(TValue));
-            Expression<Func<TValue,  bool>> predicate = null;
+            Expression<Func<TValue, bool>> predicate = null;
             LambdaMerge mergeOption = LambdaMerge.And;
             LambdaMethod methodOption;
 
@@ -46,7 +46,9 @@ namespace Generic.Service.Extensions.Filter
                         if (customAttributes.TryGetValue(namePropertyOnTFilter, out Dictionary<string, CustomAttributeTypedArgument> attributes))
                         {
                             if (attributes.TryGetValue("EntityPropertyName", out CustomAttributeTypedArgument attribute))
+                            {
                                 namePropertyOnE = attribute.Value.ToString();
+                            }
                             if (Commom.Commom.CacheProperties[typeNameTValue].TryGetValue(namePropertyOnE ?? propertyTFilter.Key.ToString(), out PropertyInfo property))
                             {
                                 if (attributes.TryGetValue("MethodOption", out attribute))
@@ -55,17 +57,24 @@ namespace Generic.Service.Extensions.Filter
                                     lambda = methodOption.SetExpressionType(param, property, propertyValueTFilter);
                                 }
                                 if (lambda == null)
-                                    throw new ArgumentNullException($"ERROR> ClassName: {nameof(GenerateLambda)} {Environment.NewLine}Message: Lambda is null.");
+                                {
+                                    throw new ArgumentNullException($"ERROR> ClassName: {nameof(GenerateLambda)} {Environment.NewLine}Message: Predicate is null. Please verify parameters.");
+                                }
                                 predicate = predicate == null ? lambda.MergeExpressions<TValue>(param) :
-                                    predicate.MergeExpressions<TValue>(mergeOption, param, lambda.MergeExpressions<TValue>(param));
+                                    predicate.MergeExpressions(mergeOption, param, lambda.MergeExpressions<TValue>(param));
                                 if (attributes.TryGetValue("MergeOption", out attribute))
+                                {
                                     mergeOption = (LambdaMerge)attribute.Value;
-                                else mergeOption = LambdaMerge.And;
+                                }
+                                else
+                                {
+                                    mergeOption = LambdaMerge.And;
+                                }
                             }
                         }
                 }
             });
-            return predicate;
+            return predicate.Compile();
         }
         /// <summary>
         /// Create an expression
@@ -104,6 +113,7 @@ namespace Generic.Service.Extensions.Filter
                     if (prop.IsNotString(LambdaMethod.GreaterThanOrEqual.ToString()))
                         lambda = Expression.LessThanOrEqual(Expression.Property(parameter, prop), Expression.Constant(value));
                     break;
+                default: return Expression.Equal(Expression.Property(parameter, prop), Expression.Constant(value));
             }
             return lambda;
         }
@@ -121,27 +131,26 @@ namespace Generic.Service.Extensions.Filter
             else throw new NotSupportedException($"ERROR> ClassName: {nameof(SetExpressionType)} {Environment.NewLine}Message: {prop.Name} type is string. {typeMethod} method doesn't support this type. Please inform Contains or Equal.");
         }
 
-        private static Expression<Func<TValue,  bool>> MergeExpressions<TValue>(this Expression lambda, ParameterExpression parameter)
-        where TValue : class => Expression.Lambda<Func<TValue,  bool>>(lambda, parameter);
+        private static Expression<Func<TValue, bool>> MergeExpressions<TValue>(this Expression lambda, ParameterExpression parameter)
+        where TValue : class => Expression.Lambda<Func<TValue, bool>>(lambda, parameter);
 
-        private static Expression<Func<TValue,  bool>> MergeExpressions<TValue>(this Expression<Func<TValue,  bool>> predicate, LambdaMerge typeMerge, ParameterExpression parameter, Expression<Func<TValue,  bool>> predicateMerge)
+        private static Expression<Func<TValue, bool>> MergeExpressions<TValue>(this Expression<Func<TValue, bool>> predicate, LambdaMerge typeMerge, ParameterExpression parameter, Expression<Func<TValue, bool>> predicateMerge)
         where TValue : class
         {
             Expression lambda = null;
-            switch (typeMerge)
+            if (typeMerge == LambdaMerge.And)
             {
-                case LambdaMerge.And:
-                    lambda = Expression.AndAlso(
-                        Expression.Invoke(predicate, parameter),
-                        Expression.Invoke(predicateMerge, parameter));
-                    break;
-                case LambdaMerge.Or:
-                    lambda = Expression.OrElse(
-                        Expression.Invoke(predicate, parameter),
-                        Expression.Invoke(predicateMerge, parameter));
-                    break;
+                lambda = Expression.AndAlso(
+                    Expression.Invoke(predicate, parameter),
+                    Expression.Invoke(predicateMerge, parameter));
             }
-            return Expression.Lambda<Func<TValue,  bool>>(lambda, parameter);
+            else
+            {
+                lambda = Expression.OrElse(
+                Expression.Invoke(predicate, parameter),
+                Expression.Invoke(predicateMerge, parameter));
+            }
+            return Expression.Lambda<Func<TValue, bool>>(lambda, parameter);
         }
     }
 }

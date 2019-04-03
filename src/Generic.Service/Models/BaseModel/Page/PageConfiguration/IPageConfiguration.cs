@@ -1,8 +1,6 @@
-using System;
-
-namespace Generic.Service.Models.BaseModel.BasePagination.BaseConfigurePage
+namespace Generic.Service.Models.BaseModel.Page.PageConfiguration
 {
-    public interface IBaseConfigurePage
+    public interface IPageConfiguration
     {
         int page { get; set; }
         int size { get; set; }
