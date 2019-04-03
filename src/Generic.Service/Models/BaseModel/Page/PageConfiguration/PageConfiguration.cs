@@ -1,8 +1,8 @@
-namespace Generic.Service.Models.BaseModel.BasePagination.BaseConfigurePage
+namespace Generic.Service.Models.BaseModel.Page.PageConfiguration
 {
-    public class BaseConfigurePage : IBaseConfigurePage
+    public class PageConfiguration : IPageConfiguration
     {
-        public BaseConfigurePage() { }
+        public PageConfiguration() { }
         public int page { get; set; }
         public int size { get; set; }
         public string sort { get; set; }
