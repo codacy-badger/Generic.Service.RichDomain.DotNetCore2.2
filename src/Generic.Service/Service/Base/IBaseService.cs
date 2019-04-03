@@ -56,6 +56,11 @@ namespace Generic.Service.Service.Base
         /// Commit async transaction if useCommit is true 
         /// </summary>
         /// <returns></returns>
-        Task CommitAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task CommitAsync();
+        /// <summary>
+        /// Commit async transaction if useCommit is true 
+        /// </summary>
+        /// <returns></returns>
+        Task CommitAsync(CancellationToken cancellationToken);
     }
 }

@@ -26,8 +26,6 @@ namespace Generic.Service.Models.BaseModel.Page
         #region Ctor
         public AbstractPage(IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
         {
-            if (mapperTo == null)
-                throw new ArgumentNullException($"ERROR> NameClass: {nameof(AbstractPage<TValue, TResult>)} Message: The delegate {nameof(mapperTo)} is not can be null.");
             _mapperTo = mapperTo;
             _count = listEntities.Count();
             ValidateCtor(_count, listEntities, config);
@@ -46,16 +44,17 @@ namespace Generic.Service.Models.BaseModel.Page
                 throw new ArgumentNullException($"ERROR> NameClass: {nameof(ValidateCtor)}. {Environment.NewLine}Message: The {(config != null ? nameof(listEntities) : nameof(config))} is empty!");
         }
 
-        public virtual IEnumerable<TResult> Content
+        public virtual List<TResult> Content
         {
             get
             {
-                IQueryable<TValue> queryableE = _listEntities.Skip(NumberPage * TotalElements).Take(Size);
+                if (_mapperTo == null)
+                    throw new ArgumentNullException($"ERROR> NameClass: {nameof(AbstractPage<TValue, TResult>)} Message: The delegate {nameof(_mapperTo)} is not can be null.");
+                IQueryable<TValue> queryableE = Sort == "ASC" ? _listEntities.OrderBy(x => Commom.CacheGet[typeof(TValue).Name][Order](x)) :
+                    _listEntities.OrderByDescending(x => Commom.CacheGet[typeof(TValue).Name][Order](x));
+                queryableE = queryableE.Skip(NumberPage * Size).Take(Size);
 
-                queryableE = Sort == "ASC" ? queryableE.OrderBy(x => Commom.CacheGet[typeof(TValue).Name][Order](x)) :
-                    queryableE.OrderByDescending(x => Commom.CacheGet[typeof(TValue).Name][Order](x));
-
-                return _mapperTo(queryableE);
+                return _mapperTo(queryableE).ToList();
             }
         }
 
@@ -83,6 +82,11 @@ namespace Generic.Service.Models.BaseModel.Page
         {
             get => _pageStatsInOne ? _config.page - 1 : _config.page;
         }
+
+        public virtual int TotalPage
+        {
+            get => TotalElements / Size;
+        }
     }
 
     public abstract class AbstractPage<TValue> : AbstractPage<TValue, TValue>
@@ -92,16 +96,15 @@ namespace Generic.Service.Models.BaseModel.Page
         public AbstractPage(IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize) : base(listEntities, null, config, pageStartInOne, defaultSort, defaultOrder, defaultSize) { }
         #endregion
 
-        public override IEnumerable<TValue> Content
+        public override List<TValue> Content
         {
             get
             {
-                IQueryable<TValue> queryableE = _listEntities.Skip(NumberPage * TotalElements).Take(Size);
+                IQueryable<TValue> queryableE = Sort == "ASC" ? _listEntities.OrderBy(x => Commom.CacheGet[typeof(TValue).Name][Order](x)) :
+                    _listEntities.OrderByDescending(x => Commom.CacheGet[typeof(TValue).Name][Order](x));
+                queryableE = queryableE.Skip(NumberPage * Size).Take(Size);
 
-                queryableE = Sort == "ASC" ? queryableE.OrderBy(x => Commom.CacheGet[typeof(TValue).Name][Order](x)) :
-                    queryableE.OrderByDescending(x => Commom.CacheGet[typeof(TValue).Name][Order](x));
-
-                return queryableE;
+                return queryableE.ToList();
             }
         }
 

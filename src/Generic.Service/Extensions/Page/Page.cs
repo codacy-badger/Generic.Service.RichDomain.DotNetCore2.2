@@ -13,7 +13,7 @@ namespace Generic.Service.Extensions.Page
     public static class Page
     {
 
-        #region IPage<TValue>
+        #region Page<TValue>
         /// <summary>
         /// Paginate entity TValue, default values: pageStartInOne: false, sort= ASC, order=Id, size=10
         /// </summary>
@@ -21,7 +21,7 @@ namespace Generic.Service.Extensions.Page
         /// <param name="config">Config from Page</param>
         /// <typeparam name="TValue">Entity E</typeparam>
         /// <returns>Paginated List E</returns>
-        public static IPage<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config)
+        public static Page<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config)
         where TValue : class => ToPage(listEntities, config, false);
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Generic.Service.Extensions.Page
         /// <param name="pageStartInOne">If Page starts on index 1</param>
         /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
-        public static IPage<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne)
+        public static Page<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne)
         where TValue : class => ToPage(listEntities, config, pageStartInOne, "ASC");
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Generic.Service.Extensions.Page
         /// <param name="defaultSort">Default value to sort ("ASC" or "DESC")</param>
         /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
-        public static IPage<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne, string defaultSort)
+        public static Page<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne, string defaultSort)
         where TValue : class => ToPage(listEntities, config, pageStartInOne, defaultSort, "Id");
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Generic.Service.Extensions.Page
         /// <param name="defaultOrder">Default value to order (Name property)</param>>
         /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
-        public static IPage<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder)
+        public static Page<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder)
         where TValue : class => ToPage(listEntities, config, pageStartInOne, defaultSort, defaultOrder, 10);
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Generic.Service.Extensions.Page
         /// <param name="defaultSize">Default value to size</param>
         /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
-        public static IPage<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
+        public static Page<TValue> ToPage<TValue>(this IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
         where TValue : class => new Page<TValue>(listEntities, config, pageStartInOne, defaultSort, defaultOrder, defaultSize);
         #endregion
 
@@ -83,7 +83,7 @@ namespace Generic.Service.Extensions.Page
         /// <param name="config">Config from Page</param>
         /// <typeparam name="TValue">Database type</typeparam>
         /// <typeparam name="TResult">Return type</typeparam>
-        public static IPage<TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config)
+        public static Page<TValue, TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config)
         where TValue : class
         where TResult : class => ToPage(listEntities, mapperTo, config, false);
 
@@ -96,7 +96,7 @@ namespace Generic.Service.Extensions.Page
         /// <typeparam name="TValue">Database type</typeparam>
         /// <typeparam name="TResult">Return type</typeparam>
         /// <returns></returns>
-        public static IPage<TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne)
+        public static Page<TValue, TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne)
         where TValue : class
         where TResult : class => ToPage(listEntities, mapperTo, config, pageStartInOne, "ASC");
 
@@ -110,7 +110,7 @@ namespace Generic.Service.Extensions.Page
         /// <typeparam name="TValue">Database type</typeparam>
         /// <typeparam name="TResult">Return type</typeparam>
         /// <returns></returns>
-        public static IPage<TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne, string defaultSort)
+        public static Page<TValue, TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne, string defaultSort)
         where TValue : class
         where TResult : class => ToPage(listEntities, mapperTo, config, pageStartInOne, defaultSort, "Id");
 
@@ -125,7 +125,7 @@ namespace Generic.Service.Extensions.Page
         /// <typeparam name="TValue">Database type</typeparam>
         /// <typeparam name="TResult">Return type</typeparam>
         /// <returns></returns>
-        public static IPage<TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder)
+        public static Page<TValue, TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder)
         where TValue : class
         where TResult : class => ToPage(listEntities, mapperTo, config, pageStartInOne, defaultSort, defaultOrder, 10);
 
@@ -141,7 +141,7 @@ namespace Generic.Service.Extensions.Page
         /// <typeparam name="TValue">Database type</typeparam>
         /// <typeparam name="TResult">Return type</typeparam>
         /// <returns></returns>
-        public static IPage<TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
+        public static Page<TValue, TResult> ToPage<TValue, TResult>(this IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
         where TValue : class
         where TResult : class => new Page<TValue, TResult>(listEntities, mapperTo, config, pageStartInOne, defaultSort, defaultOrder, defaultSize);
         #endregion

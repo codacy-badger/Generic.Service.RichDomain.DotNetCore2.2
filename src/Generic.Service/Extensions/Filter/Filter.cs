@@ -43,6 +43,7 @@ namespace Generic.Service.Extensions.Filter
                         ((DateTime)propertyValueTFilter != DateTime.MinValue || (DateTime)propertyValueTFilter != DateTime.MaxValue))))
                 {
                     if (Commom.Commom.CacheAttribute.TryGetValue(typeNameTFilter, out Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>> customAttributes))
+                    {
                         if (customAttributes.TryGetValue(namePropertyOnTFilter, out Dictionary<string, CustomAttributeTypedArgument> attributes))
                         {
                             if (attributes.TryGetValue("EntityPropertyName", out CustomAttributeTypedArgument attribute))
@@ -72,10 +73,12 @@ namespace Generic.Service.Extensions.Filter
                                 }
                             }
                         }
+                    }
                 }
             });
-            return predicate.Compile();
+            return predicate != null? predicate.Compile() : null;
         }
+        
         /// <summary>
         /// Create an expression
         /// </summary>
@@ -93,25 +96,35 @@ namespace Generic.Service.Extensions.Filter
                     return Expression.Equal(Expression.Property(parameter, prop), Expression.Constant(value));
                 case LambdaMethod.Contains:
                     if (prop.PropertyType != typeof(string))
+                    {
                         throw new NotSupportedException($"ERROR> ClassName: {nameof(SetExpressionType)} {Environment.NewLine}Message: {prop.Name} type is not string. This method only can be used by string type parameter.");
+                    }
                     MethodInfo method = typeof(string).GetMethod(LambdaMethod.Contains.ToString(), new[] { typeof(string) });
                     lambda = Expression.Call(Expression.Property(parameter, prop), method, Expression.Constant(value));
                     break;
                 case LambdaMethod.GreaterThan:
                     if (prop.IsNotString(LambdaMethod.GreaterThan.ToString()))
+                    {
                         lambda = Expression.GreaterThan(Expression.Property(parameter, prop), Expression.Constant(value));
+                    }
                     break;
                 case LambdaMethod.LessThan:
                     if (prop.IsNotString(LambdaMethod.LessThan.ToString()))
+                    {
                         lambda = Expression.LessThan(Expression.Property(parameter, prop), Expression.Constant(value));
+                    }
                     break;
                 case LambdaMethod.GreaterThanOrEqual:
                     if (prop.IsNotString(LambdaMethod.GreaterThanOrEqual.ToString()))
+                    {
                         lambda = Expression.GreaterThanOrEqual(Expression.Property(parameter, prop), Expression.Constant(value));
+                    }
                     break;
                 case LambdaMethod.LessThanOrEqual:
                     if (prop.IsNotString(LambdaMethod.GreaterThanOrEqual.ToString()))
+                    {
                         lambda = Expression.LessThanOrEqual(Expression.Property(parameter, prop), Expression.Constant(value));
+                    }
                     break;
                 default: return Expression.Equal(Expression.Property(parameter, prop), Expression.Constant(value));
             }
@@ -126,9 +139,14 @@ namespace Generic.Service.Extensions.Filter
         /// <returns>Return a bool</returns>
         private static bool IsNotString(this PropertyInfo prop, string typeMethod)
         {
-            if (prop.PropertyType != typeof(String))
+            if (prop.PropertyType != typeof(string))
+            {
                 return true;
-            else throw new NotSupportedException($"ERROR> ClassName: {nameof(SetExpressionType)} {Environment.NewLine}Message: {prop.Name} type is string. {typeMethod} method doesn't support this type. Please inform Contains or Equal.");
+            }
+            else
+            {
+                throw new NotSupportedException($"ERROR> ClassName: {nameof(SetExpressionType)} {Environment.NewLine}Message: {prop.Name} type is string. {typeMethod} method doesn't support this type. Please inform Contains or Equal.");
+            }
         }
 
         private static Expression<Func<TValue, bool>> MergeExpressions<TValue>(this Expression lambda, ParameterExpression parameter)

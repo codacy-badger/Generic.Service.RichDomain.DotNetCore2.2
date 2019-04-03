@@ -23,7 +23,7 @@ namespace Generic.Service.Service.Base
         private readonly string _includeDateNameField;
         private readonly bool _useCommit;
 
-        public BaseService(DbContext context)
+        protected BaseService(DbContext context)
         {
             _context = context;
             _useCommit = false;
@@ -31,14 +31,14 @@ namespace Generic.Service.Service.Base
 
         }
 
-        public BaseService(DbContext context, bool useCommit)
+        protected BaseService(DbContext context, bool useCommit)
         {
             _includeDateNameField = "dateInclusion";
             _useCommit = useCommit;
             _context = context;
         }
 
-        public BaseService(DbContext context, string includeDateNameField)
+        protected BaseService(DbContext context, string includeDateNameField)
         {
             _includeDateNameField = includeDateNameField ??
                 throw new ArgumentNullException(nameof(includeDateNameField));
@@ -46,7 +46,7 @@ namespace Generic.Service.Service.Base
             _context = context;
         }
 
-        public BaseService(DbContext context, string includeDateNameField, bool useCommit)
+        protected BaseService(DbContext context, string includeDateNameField, bool useCommit)
         {
             _includeDateNameField = includeDateNameField ??
                 throw new ArgumentNullException(nameof(includeDateNameField));
@@ -62,7 +62,7 @@ namespace Generic.Service.Service.Base
         public virtual IQueryable<TValue> FilterAll(TFilter filter, bool EnableAsNoTracking)
         {
             var func = filter.GenerateLambda<TValue, TFilter>();
-            return GetAllBy(x => func(x), EnableAsNoTracking);
+            return func == null ? GetAll(EnableAsNoTracking) : GetAllBy(x => func(x), EnableAsNoTracking);
         }
 
         public virtual async Task<TValue> GetByAsync(Expression<Func<TValue, bool>> predicate) => await _context.Set<TValue>().SingleOrDefaultAsync(predicate);
@@ -119,7 +119,9 @@ namespace Generic.Service.Service.Base
             });
         }
 
-        public Task CommitAsync(CancellationToken cancellationToken = default(CancellationToken)) => _context.SaveChangesAsync(cancellationToken);
+        public Task CommitAsync() => _context.SaveChangesAsync(default(CancellationToken));
+
+        public Task CommitAsync(CancellationToken cancellationToken) => _context.SaveChangesAsync(cancellationToken);
 
         private TValue ReturnE() => (TValue)Convert.ChangeType(this, typeof(TValue));
 

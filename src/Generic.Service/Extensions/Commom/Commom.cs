@@ -98,12 +98,12 @@ namespace Generic.Service.Extensions.Commom
                 {
                     CacheAttribute.Add(typeName, new Dictionary<string, Dictionary<string, CustomAttributeTypedArgument>>(totalProperties));
                     foreach (var property in properties)
-                        SaveOnCacheAttrIfNonExist(property, typeName, totalProperties);
+                        SaveOnCacheAttrIfNonExist(property, typeName);
                 }
             }
         }
 
-        private static void SaveOnCacheAttrIfNonExist(PropertyInfo propertyInfo, string typeName, int totalProperties)
+        private static void SaveOnCacheAttrIfNonExist(PropertyInfo propertyInfo, string typeName)
         {
             string propetyName = propertyInfo.Name;
             CacheAttribute[typeName].Add(propetyName, propertyInfo.GetCustomAttributesData().SelectMany(x => x.NamedArguments).ToDictionary(x => x.MemberName, x => x.TypedValue));
@@ -132,7 +132,7 @@ namespace Generic.Service.Extensions.Commom
         private static Action<object, object> CreateSetter<TValue>(PropertyInfo property)
         {
             property.IsNull(property.Name, nameof(CreateSetter));
-            
+
             var setter = property.GetSetMethod(true);
             if (setter == null)
             {
@@ -153,11 +153,7 @@ namespace Generic.Service.Extensions.Commom
 
         private static void IsNull(this object value, string nameObject, string nameClass)
         {
-            if (value.GetType() == typeof(string) && string.IsNullOrEmpty(value.ToString()))
-            {
-                throw new ArgumentNullException($"ERROR> ClassName: {nameClass} {Environment.NewLine} Message: {nameObject} is null or empty.");
-            }
-            else if (value == null)
+            if (value == null || value.GetType() == typeof(string) && string.IsNullOrEmpty(value.ToString()))
             {
                 throw new ArgumentNullException($"ERROR> ClassName: {nameClass} {Environment.NewLine} Message: {nameObject} is null or empty.");
             }
