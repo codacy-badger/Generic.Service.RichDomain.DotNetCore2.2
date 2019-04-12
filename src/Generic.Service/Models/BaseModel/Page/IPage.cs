@@ -1,10 +1,12 @@
+using System;
 using System.Collections.Generic;
 
-namespace Generic.Service.Models.BaseModel.Page {
-    public interface IPage<TReturn>
-     where TReturn: class
-     {
-        IEnumerable<TReturn> Content { get; }
+namespace Generic.Service.Models.BaseModel.Page
+{
+    public interface IPage<TReturn> : IEquatable<TReturn>
+     where TReturn : class
+    {
+        List<TReturn> Content { get; }
 
         int TotalElements { get; }
 
@@ -15,5 +17,7 @@ namespace Generic.Service.Models.BaseModel.Page {
         int Size { get; }
 
         int NumberPage { get; }
+
+        int TotalPage { get; }
     }
 }

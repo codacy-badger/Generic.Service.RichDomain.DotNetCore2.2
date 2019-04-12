@@ -13,7 +13,7 @@ namespace Generic.Service.Extensions.Page
     public static class Page
     {
 
-        #region IPage<TValue>
+        #region Page<TValue>
         /// <summary>
         /// Paginate entity TValue, default values: pageStartInOne: false, sort= ASC, order=Id, size=10
         /// </summary>
