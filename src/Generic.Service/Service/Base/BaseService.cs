@@ -100,11 +100,11 @@ namespace Generic.Service.Service.Base
 #endregion
 
 #region COMMAND - (CREAT, UPDATE, DELETE) Without CancellationToken
-        public virtual async Task<TValue> CreateAsync()=> await CreateAsync(default(CancellationToken));
+        public virtual async Task<TValue> CreateAsync()=> await CreateAsync(default(CancellationToken)).ConfigureAwait(false);
 
-        public virtual async Task UpdateAsync()=> await UpdateAsync(default(CancellationToken));
+        public virtual async Task UpdateAsync()=> await UpdateAsync(default(CancellationToken)).ConfigureAwait(false);
 
-        public virtual async Task DeleteAsync() => await DeleteAsync(default(CancellationToken));
+        public virtual async Task DeleteAsync() => await DeleteAsync(default(CancellationToken)).ConfigureAwait(false);
 #endregion
 
 #region public Methods 
