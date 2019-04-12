@@ -1,5 +1,6 @@
 using Generic.Service.Extensions.Commom;
 using Generic.Service.Extensions.Filter;
+using Generic.Service.Extensions.Validation;
 using Generic.Service.Models.BaseModel.BaseFilter;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,13 +17,16 @@ namespace Generic.Service.Service.Base
     ///</summary>
     public abstract class BaseService<TValue, TFilter> : IBaseService<TValue, TFilter>
         where TValue : class
-    where TFilter : class, IBaseFilter
+    where TFilter : class, IFilter
     {
+#region Attr
         private TValue item;
         protected readonly DbContext _context;
         private readonly string _includeDateNameField;
         private readonly bool _useCommit;
+#endregion
 
+#region Ctor
         protected BaseService(DbContext context)
         {
             _context = context;
@@ -40,66 +44,83 @@ namespace Generic.Service.Service.Base
 
         protected BaseService(DbContext context, string includeDateNameField)
         {
-            _includeDateNameField = includeDateNameField ??
-                throw new ArgumentNullException(nameof(includeDateNameField));
+             _includeDateNameField.IsNull(nameof(BaseService<TValue, TFilter>), nameof(_includeDateNameField));
             _useCommit = false;
             _context = context;
         }
 
         protected BaseService(DbContext context, string includeDateNameField, bool useCommit)
         {
-            _includeDateNameField = includeDateNameField ??
-                throw new ArgumentNullException(nameof(includeDateNameField));
+            _includeDateNameField.IsNull(nameof(BaseService<TValue, TFilter>), nameof(_includeDateNameField));
             _useCommit = useCommit;
             _context = context;
         }
+#endregion
 
+#region QUERY
         public virtual IQueryable<TValue> GetAll(bool EnableAsNoTracking) => EnableAsNoTracking ? _context.Set<TValue>().AsNoTracking() : _context.Set<TValue>();
 
         public virtual IQueryable<TValue> GetAllBy(Expression<Func<TValue, bool>> predicate, bool EnableAsNoTracking) => predicate != null ?
             GetAll(EnableAsNoTracking).Where(predicate) : GetAll(EnableAsNoTracking);
 
-        public virtual IQueryable<TValue> FilterAll(TFilter filter, bool EnableAsNoTracking)
-        {
-            var func = filter.GenerateLambda<TValue, TFilter>();
-            return func == null ? GetAll(EnableAsNoTracking) : GetAllBy(x => func(x), EnableAsNoTracking);
-        }
+        public virtual IQueryable<TValue> FilterAll(TFilter filter, bool EnableAsNoTracking) => GetAllBy(filter.GenerateLambda<TValue, TFilter>(), EnableAsNoTracking);
 
-        public virtual async Task<TValue> GetByAsync(Expression<Func<TValue, bool>> predicate) => await _context.Set<TValue>().SingleOrDefaultAsync(predicate);
+        public virtual async Task<TValue> GetByAsync(Expression<Func<TValue, bool>> predicate, bool EnableAsNoTracking) => !predicate.IsNull(nameof(GetByAsync), nameof(predicate)) &&
+        EnableAsNoTracking ? await _context.Set<TValue>().AsNoTracking().SingleOrDefaultAsync(predicate) : await _context.Set<TValue>().SingleOrDefaultAsync(predicate);
+#endregion
 
-        public virtual async Task<TValue> CreateAsync()
+#region COMMAND - (CREAT, UPDATE, DELETE) With CancellationToken
+        public virtual async Task<TValue> CreateAsync(CancellationToken token)
         {
             SetState(EntityState.Added, item);
             if (!_useCommit)
             {
-                await CommitAsync();
+                await CommitAsync(token).ConfigureAwait(false);
             }
             return item;
         }
 
-        public virtual async Task UpdateAsync()
+        public virtual async Task UpdateAsync(CancellationToken token)
         {
             SetState(EntityState.Modified, item);
             if (!_useCommit)
             {
-                await CommitAsync();
+                await CommitAsync(token).ConfigureAwait(false);
             }
-        }
+        }    
 
-        public virtual async Task DeleteAsync(TValue entity)
+        public virtual async Task DeleteAsync(CancellationToken token)
         {
-            _context.Remove(entity);
+            _context.Remove(ReturnE());
             if (!_useCommit)
             {
-                await CommitAsync();
+                await CommitAsync(token).ConfigureAwait(false);
             }
         }
+#endregion
 
+#region COMMAND - (CREAT, UPDATE, DELETE) Without CancellationToken
+        public virtual async Task<TValue> CreateAsync()=> await CreateAsync(default(CancellationToken));
+
+        public virtual async Task UpdateAsync()=> await UpdateAsync(default(CancellationToken));
+
+        public virtual async Task DeleteAsync() => await DeleteAsync(default(CancellationToken));
+#endregion
+
+#region public Methods 
         public void Map(TValue item)
         {
             SetThis(item);
         }
+#endregion
 
+#region COMMIT
+        public Task CommitAsync() => CommitAsync(default(CancellationToken));
+
+        public Task CommitAsync(CancellationToken cancellationToken) => _context.SaveChangesAsync(cancellationToken);
+#endregion
+
+#region private Methods
         private void SetThis(TValue item)
         {
             this.item = ReturnE();
@@ -118,13 +139,11 @@ namespace Generic.Service.Service.Base
                 }
             });
         }
-
-        public Task CommitAsync() => _context.SaveChangesAsync(default(CancellationToken));
-
-        public Task CommitAsync(CancellationToken cancellationToken) => _context.SaveChangesAsync(cancellationToken);
-
+        
         private TValue ReturnE() => (TValue)Convert.ChangeType(this, typeof(TValue));
 
-        private void SetState(EntityState state, TValue item) => _context.Entry(item).State = state;
+        private void SetState(EntityState state, TValue item) => _context.Attach(item).State = state;        
+#endregion
+
     }
 }

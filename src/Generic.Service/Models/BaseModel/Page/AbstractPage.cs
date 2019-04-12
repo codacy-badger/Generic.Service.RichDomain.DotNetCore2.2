@@ -1,4 +1,5 @@
 using Generic.Service.Extensions.Commom;
+using Generic.Service.Extensions.Validation;
 using Generic.Service.Models.BaseModel.Page.PageConfiguration;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace Generic.Service.Models.BaseModel.Page
         #endregion
 
         #region Ctor
-        public AbstractPage(IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
+        protected AbstractPage(IQueryable<TValue> listEntities, Func<IEnumerable<TValue>, IEnumerable<TResult>> mapperTo, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize)
         {
             _mapperTo = mapperTo;
             _count = listEntities.Count();
@@ -38,18 +39,23 @@ namespace Generic.Service.Models.BaseModel.Page
         }
         #endregion
 
-        protected virtual void ValidateCtor(int count, IQueryable<TValue> listEntities, IPageConfiguration config)
+        private void ValidateCtor(int count, IQueryable<TValue> listEntities, IPageConfiguration config)
         {
             if (count < 1 || config == null)
-                throw new ArgumentNullException($"ERROR> NameClass: {nameof(ValidateCtor)}. {Environment.NewLine}Message: The {(config != null ? nameof(listEntities) : nameof(config))} is empty!");
+            {
+                throw new ArgumentNullException($"ERROR> ClassName: {nameof(ValidateCtor)} {Environment.NewLine}Message: The {(config is null ? nameof(listEntities) : nameof(config))} is empty!");
+            }
+        }
+        public bool Equals(TResult other)
+        {
+            other.IsNull(nameof(Equals),nameof(other));
+            return other == this;
         }
 
         public virtual List<TResult> Content
         {
             get
             {
-                if (_mapperTo == null)
-                    throw new ArgumentNullException($"ERROR> NameClass: {nameof(AbstractPage<TValue, TResult>)} Message: The delegate {nameof(_mapperTo)} is not can be null.");
                 IQueryable<TValue> queryableE = Sort == "ASC" ? _listEntities.OrderBy(x => Commom.CacheGet[typeof(TValue).Name][Order](x)) :
                     _listEntities.OrderByDescending(x => Commom.CacheGet[typeof(TValue).Name][Order](x));
                 queryableE = queryableE.Skip(NumberPage * Size).Take(Size);
@@ -93,7 +99,7 @@ namespace Generic.Service.Models.BaseModel.Page
         where TValue : class
     {
         #region Ctor
-        public AbstractPage(IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize) : base(listEntities, null, config, pageStartInOne, defaultSort, defaultOrder, defaultSize) { }
+        protected AbstractPage(IQueryable<TValue> listEntities, IPageConfiguration config, bool pageStartInOne, string defaultSort, string defaultOrder, int defaultSize) : base(listEntities, null, config, pageStartInOne, defaultSort, defaultOrder, defaultSize) { }
         #endregion
 
         public override List<TValue> Content

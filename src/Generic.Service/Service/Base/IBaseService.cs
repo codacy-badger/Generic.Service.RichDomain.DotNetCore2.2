@@ -8,14 +8,13 @@ using Generic.Service.Models.BaseModel.BaseFilter;
 namespace Generic.Service.Service.Base
 {
     public interface IBaseService<TValue, TFilter>
-    where TFilter : IBaseFilter
+    where TFilter : IFilter
     where TValue : class
     {
-        ///<summary>
-        /// Map the sended entity to this entity
-        ///</summary>
-        ///<param name="item">Item to map</param>
+
         void Map(TValue item);
+        
+#region Query
         ///<summary>
         /// Return all data
         ///</summary>
@@ -35,23 +34,48 @@ namespace Generic.Service.Service.Base
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        Task<TValue> GetByAsync(Expression<Func<TValue, bool>> predicate);
+        Task<TValue> GetByAsync(Expression<Func<TValue, bool>> predicate, bool EnableAsNoTracking);
+#endregion
+
+#region COMMAND - (CREAT, UPDATE, DELETE) Without CancellationToken
         /// <summary>
         /// Save data async
         /// </summary>
         /// <returns></returns>
-        Task<TValue> CreateAsync();
+        Task<TValue> CreateAsync();  
         /// <summary>
         /// Update data async
         /// </summary>
         /// <returns></returns>
-        Task UpdateAsync();
+        Task UpdateAsync();    
         /// <summary>
         /// Delete data async
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task DeleteAsync(TValue entity);
+        Task DeleteAsync();
+#endregion
+
+#region COMMAND - (CREAT, UPDATE, DELETE) With CancellationToken
+        /// <summary>
+        /// Save data async
+        /// </summary>
+        /// <returns></returns>
+        Task<TValue> CreateAsync(CancellationToken token);
+        /// <summary>
+        /// Update data async
+        /// </summary>
+        /// <returns></returns>
+        Task UpdateAsync(CancellationToken token);
+        /// <summary>
+        /// Delete data async
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task DeleteAsync(CancellationToken token);
+#endregion
+
+#region COMMIT - (SAVECHANGES)
         /// <summary>
         /// Commit async transaction if useCommit is true 
         /// </summary>
@@ -62,5 +86,6 @@ namespace Generic.Service.Service.Base
         /// </summary>
         /// <returns></returns>
         Task CommitAsync(CancellationToken cancellationToken);
+#endregion  
     }
 }

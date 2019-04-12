@@ -4,7 +4,7 @@ namespace Generic.Service.Models.BaseModel.BaseFilter
     /// Base Filter to use for filter entities on package;
     /// Inheritance is required.
     ///</summary>
-    public interface IBaseFilter
+    public interface IFilter
     {
         
     }
