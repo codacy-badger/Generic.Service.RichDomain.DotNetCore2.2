@@ -40,7 +40,7 @@ For implements this package, follow the steps:
 - In your Service make this:
   
 ```
-public class MyEntity: BaseService<MyEntity, IBaseFilter>, IBaseService<MyEntity, IBaseFilter>
+public class MyEntity: BaseService<MyEntity, IFilter>, IBaseService<MyEntity, IFilter>
 {
 //if has any code you implements here!!!
 }
@@ -65,7 +65,7 @@ For use auto generate lambda to filter is need make this:
 //The entity is the same of above example.
 
 //My Entity Filter
-public class MyEntityFilter: IBaseFilter
+public class MyEntityFilter: IFilter
 {
   [LambdaGenerate(MethodOption = LambdaMethod.GreaterThanOrEqual, EntityPropertyName="Id")]
   public long CodeMin { get; set; }

@@ -1,7 +1,7 @@
 using Generic.Service.Extensions.Commom;
 using Generic.Service.Extensions.Filter;
 using Generic.Service.Extensions.Validation;
-using Generic.Service.Models.BaseModel.BaseFilter;
+using Generic.Service.Models.BaseModel.Filter;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace Generic.Service.Service.Base
 {
     ///<summary>
     /// This is a Base Service implementation which any entity or Service should be have.
-    /// TValue - Entity Type, F inheritance of IBaseFilter or IBaseFilter
+    /// TValue - Entity Type, F inheritance of IFilter or IFilter
     ///</summary>
     public abstract class BaseService<TValue, TFilter> : IBaseService<TValue, TFilter>
         where TValue : class

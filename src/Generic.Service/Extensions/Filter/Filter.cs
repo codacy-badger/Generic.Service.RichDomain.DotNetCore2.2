@@ -1,6 +1,6 @@
 using Generic.Service.Enum;
 using Generic.Service.Extensions.Validation;
-using Generic.Service.Models.BaseModel.BaseFilter;
+using Generic.Service.Models.BaseModel.Filter;
 using System;
 using System.Collections.Generic;
 using System.Linq;

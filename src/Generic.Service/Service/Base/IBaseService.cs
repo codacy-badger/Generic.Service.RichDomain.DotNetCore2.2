@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Generic.Service.Models.BaseModel.BaseFilter;
+using Generic.Service.Models.BaseModel.Filter;
 
 namespace Generic.Service.Service.Base
 {
